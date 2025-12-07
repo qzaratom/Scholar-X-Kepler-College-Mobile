@@ -2,30 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ScholarX - Secure Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScholarX - Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #4A6FFF;
-            --primary-dark: #3A5FEF;
-            --secondary: #00C9B7;
-            --dark: #0F172A;
-            --darker: #0A0F1F;
-            --light: #F8FAFC;
-            --gray: #94A3B8;
-            --gray-dark: #475569;
-            --success: #10B981;
-            --error: #EF4444;
-            --warning: #F59E0B;
-            --card-bg: rgba(30, 41, 59, 0.95);
-            --card-border: rgba(255, 255, 255, 0.08);
         }
 
         body {
@@ -35,293 +19,213 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 16px;
-            background-color: var(--darker);
-            color: var(--light);
-            line-height: 1.5;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        /* Mobile-optimized background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%),
-                url('scholarimage.png') center/cover no-repeat;
-            z-index: -2;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(74, 111, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(0, 201, 183, 0.08) 0%, transparent 50%);
-            z-index: -1;
-        }
-
-        /* Mobile-optimized login container */
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 28px 24px;
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(10px);
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.3),
-                0 0 0 1px rgba(255, 255, 255, 0.03),
-                0 1px 3px rgba(0, 0, 0, 0.1);
-            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 20px;
             position: relative;
-            overflow: hidden;
-            margin: 0 auto;
+            background-color: #0F172A;
         }
 
-        .login-container::before {
+        /* Background image with dark overlay */
+        body::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            height: 100%;
+            background: url('scholarimage.png') center/cover no-repeat;
+            opacity: 0.6;
+            z-index: -1;
         }
 
-        @keyframes fadeInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
+        /* Additional dark overlay */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: -1;
         }
 
-        /* Mobile-optimized logo */
-        .logo-section {
-            text-align: center;
-            margin-bottom: 24px;
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(30, 41, 59, 0.9);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-out;
         }
 
-        .logo-container {
-            width: 70px;
-            height: 70px;
-            margin: 0 auto 16px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 16px rgba(74, 111, 255, 0.25);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .logo {
-            width: 36px;
-            height: 36px;
-            filter: brightness(0) invert(1);
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            display: block;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
 
-        .logo-text {
-            font-size: 24px;
-            font-weight: 800;
-            color: white;
-            letter-spacing: -0.5px;
-        }
-
-        /* Mobile-optimized header */
         .login-header {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 25px;
         }
 
         .login-header h1 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
             color: white;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, white, var(--gray));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .login-header p {
-            font-size: 13px;
-            color: var(--gray);
+            font-size: 12px;
+            color: #00C9B7;
             font-weight: 400;
-            line-height: 1.4;
+            letter-spacing: 0.3px;
         }
 
-        /* Mobile-optimized form */
+        /* Form styles */
         .form-group {
             margin-bottom: 20px;
         }
 
         .form-label {
-            display: flex;
-            align-items: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--light);
-            margin-bottom: 8px;
-            letter-spacing: 0.2px;
-        }
-
-        .form-label i {
-            margin-right: 8px;
-            color: var(--primary);
+            display: block;
             font-size: 12px;
-            width: 16px;
-        }
-
-        .form-input-container {
-            position: relative;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
         }
 
         .form-input {
             width: 100%;
-            padding: 16px 44px 16px 16px;
+            padding: 12px;
             background: rgba(15, 23, 42, 0.7);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
             color: white;
-            font-size: 15px;
-            transition: all 0.2s ease;
-            font-family: inherit;
-            -webkit-appearance: none;
-            appearance: none;
+            font-size: 13px;
+            transition: all 0.3s ease;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 
-                0 0 0 3px rgba(74, 111, 255, 0.1),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-            background: rgba(15, 23, 42, 0.9);
+            border-color: #4A6FFF;
+            box-shadow: 0 0 0 2px rgba(74, 111, 255, 0.2);
         }
 
         .form-input::placeholder {
-            color: var(--gray);
-            font-size: 14px;
+            color: rgba(255, 255, 255, 0.4);
         }
 
-        .form-input-icon {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-            font-size: 14px;
-            pointer-events: none;
+        .password-container {
+            position: relative;
         }
 
         .toggle-password {
             position: absolute;
-            right: 16px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--gray);
+            color: rgba(255, 255, 255, 0.5);
             cursor: pointer;
             font-size: 14px;
-            padding: 6px;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+            padding: 4px;
         }
 
-        .toggle-password:hover,
-        .toggle-password:active {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--light);
-        }
-
-        /* Mobile-optimized button */
+        /* Login button */
         .login-button {
             width: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: transparent;
             color: white;
-            padding: 17px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 8px;
-            font-family: inherit;
-            letter-spacing: 0.3px;
-            position: relative;
-            overflow: hidden;
-            -webkit-tap-highlight-color: rgba(74, 111, 255, 0.3);
-            touch-action: manipulation;
-        }
-
-        .login-button:hover,
-        .login-button:active {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(74, 111, 255, 0.25);
-        }
-
-        .login-button:active {
-            transform: translateY(0);
-        }
-
-        /* Mobile-optimized messages */
-        .error-message,
-        .success-message {
-            font-size: 12px;
-            margin-top: 12px;
-            text-align: center;
             padding: 12px;
-            border-radius: 10px;
-            display: none;
-            align-items: center;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .login-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer links */
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links {
+            display: flex;
             justify-content: center;
-            gap: 8px;
-            line-height: 1.4;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 12px 0;
         }
 
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 10px;
+            transition: color 0.3s ease;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .copyright {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Error message */
         .error-message {
-            color: var(--error);
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.15);
-        }
-
-        .success-message {
-            color: var(--success);
-            background: rgba(16, 185, 129, 0.08);
-            border: 1px solid rgba(16, 185, 129, 0.15);
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: 10px;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 4px;
+            display: none;
         }
 
         /* Loading spinner */
         .spinner {
             border: 3px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            border-top: 3px solid var(--secondary);
-            width: 22px;
-            height: 22px;
+            border-top: 3px solid #00C9B7;
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
             margin: 0 auto;
             display: none;
@@ -332,150 +236,35 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Mobile-optimized additional info */
-        .additional-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-            font-size: 13px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--gray);
-            cursor: pointer;
-            font-size: 13px;
-            user-select: none;
-        }
-
-        .remember-me input {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--primary);
-            flex-shrink: 0;
-        }
-
-        .forgot-password {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 13px;
-            white-space: nowrap;
-            padding: 4px 0;
-        }
-
-        .forgot-password:active {
-            color: var(--secondary);
-        }
-
-        /* Mobile-optimized demo banner */
-        .demo-banner {
-            background: linear-gradient(135deg, rgba(74, 111, 255, 0.08), rgba(0, 201, 183, 0.08));
-            border: 1px solid rgba(74, 111, 255, 0.15);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .demo-banner h4 {
-            color: var(--primary);
-            font-size: 13px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .demo-credentials {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 8px;
-            font-size: 12px;
-        }
-
-        .demo-cred {
-            background: rgba(15, 23, 42, 0.4);
-            padding: 10px 12px;
-            border-radius: 8px;
-            border-left: 3px solid var(--primary);
-        }
-
-        .demo-cred .role {
-            font-weight: 600;
-            color: var(--light);
-            font-size: 12px;
-            margin-bottom: 2px;
-        }
-
-        .demo-cred .email {
-            color: var(--gray);
-            font-family: 'SF Mono', Monaco, 'Cascadia Mono', monospace;
-            font-size: 11px;
-            word-break: break-all;
-        }
-
-        /* Mobile-optimized footer */
-        .login-footer {
-            text-align: center;
-            margin-top: 28px;
-            padding-top: 24px;
-            border-top: 1px solid var(--card-border);
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin: 16px 0;
-        }
-
-        .footer-link {
-            color: var(--gray);
-            text-decoration: none;
-            font-size: 11px;
-            transition: color 0.2s ease;
-            letter-spacing: 0.2px;
-            cursor: pointer;
-            padding: 4px 0;
-            position: relative;
-            white-space: nowrap;
-        }
-
-        .footer-link:active {
-            color: white;
-        }
-
-        .copyright {
-            font-size: 11px;
-            color: var(--gray-dark);
-            margin-top: 16px;
-            letter-spacing: 0.3px;
-            line-height: 1.4;
-        }
-
-        /* Mobile-specific optimizations */
-        @media (max-width: 360px) {
+        /* Responsive design */
+        @media (max-width: 768px) {
             .login-container {
-                padding: 24px 20px;
-                border-radius: 18px;
-            }
-            
-            .logo-container {
-                width: 64px;
-                height: 64px;
-                border-radius: 16px;
+                max-width: 90%;
+                padding: 25px;
             }
             
             .logo {
-                width: 32px;
-                height: 32px;
+                width: 70px;
+                height: 70px;
+            }
+            
+            .login-header h1 {
+                font-size: 22px;
+            }
+            
+            .footer-links {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 20px 15px;
+            }
+            
+            .logo {
+                width: 60px;
+                height: 60px;
             }
             
             .login-header h1 {
@@ -483,271 +272,94 @@
             }
             
             .login-header p {
+                font-size: 11px;
+            }
+            
+            .form-input {
+                padding: 10px;
                 font-size: 12px;
             }
             
-            .form-input {
-                padding: 15px 40px 15px 15px;
-                font-size: 14px;
+            .login-button {
+                padding: 10px;
+                font-size: 13px;
             }
             
             .footer-links {
-                gap: 10px;
+                gap: 8px;
             }
             
             .footer-link {
-                font-size: 10px;
-            }
-        }
-
-        @media (max-height: 700px) {
-            body {
-                padding: 12px;
+                font-size: 9px;
             }
             
-            .login-container {
-                margin: 12px auto;
+            .copyright {
+                font-size: 9px;
             }
-            
-            .logo-section {
-                margin-bottom: 20px;
-            }
-            
-            .login-header {
-                margin-bottom: 24px;
-            }
-        }
-
-        /* Touch device optimizations */
-        @media (hover: none) and (pointer: coarse) {
-            .login-button:hover {
-                transform: none;
-            }
-            
-            .toggle-password:hover {
-                background: none;
-                color: var(--gray);
-            }
-            
-            .toggle-password:active {
-                background: rgba(255, 255, 255, 0.05);
-                color: var(--light);
-            }
-            
-            .footer-link:hover {
-                color: var(--gray);
-            }
-            
-            .footer-link:active {
-                color: white;
-            }
-            
-            .forgot-password:hover {
-                color: var(--primary);
-            }
-            
-            .forgot-password:active {
-                color: var(--secondary);
-            }
-        }
-
-        /* iOS specific fixes */
-        @supports (-webkit-touch-callout: none) {
-            .login-container {
-backdrop-filter: blur(10px);
--webkit-backdrop-filter: blur(10px);
-
-            }
-            
-            .form-input {
-                font-size: 16px; /* Prevents iOS zoom on focus */
-            }
-        }
-
-        /* Android Chrome fixes */
-        @media screen and (-webkit-min-device-pixel-ratio: 0) {
-            .form-input {
-                min-height: 48px; /* Better touch target */
-            }
-            
-            .login-button {
-                min-height: 52px;
-            }
-        }
-
-        /* Accessibility improvements for mobile */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* Larger touch targets */
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-        }
-
-        /* Prevent text selection on interactive elements */
-        .toggle-password,
-        .footer-link,
-        .remember-me {
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Focus styles for mobile accessibility */
-        .form-input:focus,
-        .login-button:focus,
-        .toggle-password:focus,
-        .footer-link:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        /* Shake animation for errors */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-            20%, 40%, 60%, 80% { transform: translateX(4px); }
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <!-- Logo Section -->
-        <div class="logo-section">
-            <div class="logo-container">
-<img
-  src="logo.png"
-  alt="ScholarX Logo"
-  class="logo logo-img"
-/>
-<span class="logo-text-fallback" hidden>SX</span>
-
-<script>
-  const logoImg = document.querySelector('.logo-img');
-  const logoFallback = document.querySelector('.logo-text-fallback');
-
-  logoImg.addEventListener('error', () => {
-    logoImg.remove();
-    logoFallback.hidden = false;
-  });
-</script>
-
-            </div>
-        </div>
+        <!-- Logo -->
+        <img src="logo.png" alt="ScholarX Logo" class="logo">
         
         <!-- Login Header -->
         <div class="login-header">
-            <h1>Welcome to ScholarX</h1>
-            <p>Securely access your educational dashboard</p>
-        </div>
-        
-        <!-- Demo Credentials Banner -->
-        <div class="demo-banner" id="demoBanner">
-            <h4><i class="fas fa-key"></i> Demo Credentials</h4>
-            <div class="demo-credentials">
-                <div class="demo-cred">
-                    <div class="role">Administrator</div>
-                    <div class="email">admin@keplercollege.edu</div>
-                </div>
-                <div class="demo-cred">
-                    <div class="role">Student</div>
-                    <div class="email">alice.j@keplercollege.edu</div>
-                </div>
-            </div>
+            <h1>ScholarX</h1>
+            <p>Connecting Education, Empowering Communication</p>
         </div>
         
         <!-- Login Form -->
         <form id="loginForm">
             <!-- Email Input -->
             <div class="form-group">
-                <label class="form-label" for="email">
-                    <i class="fas fa-envelope"></i> Email Address
-                </label>
-                <div class="form-input-container">
-                    <input type="email" id="email" class="form-input" placeholder="Enter your institutional email" required autocomplete="email" inputmode="email">
-                    <div class="form-input-icon">
-                        <i class="fas fa-user"></i>
-                    </div>
-                </div>
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" class="form-input" placeholder="Enter your email" required>
             </div>
             
             <!-- Password Input -->
             <div class="form-group">
-                <label class="form-label" for="password">
-                    <i class="fas fa-lock"></i> Password
-                </label>
-                <div class="form-input-container">
-                    <input type="password" id="password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
-                    <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">
+                <label class="form-label" for="password">Password</label>
+                <div class="password-container">
+                    <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-password" id="togglePassword">
                         <i class="far fa-eye"></i>
                     </button>
                 </div>
             </div>
             
-            <!-- Additional Options -->
-            <div class="additional-info">
-                <label class="remember-me">
-                    <input type="checkbox" id="rememberMe">
-                    <span>Remember me</span>
-                </label>
-                <a href="#" class="forgot-password" onclick="showForgotPassword()">Forgot password?</a>
-            </div>
-            
-            <!-- Messages -->
-            <div class="error-message" id="errorMessage">
-                <i class="fas fa-exclamation-circle"></i>
-                <span id="errorText"></span>
-            </div>
-            
-            <div class="success-message" id="successMessage">
-                <i class="fas fa-check-circle"></i>
-                <span id="successText"></span>
-            </div>
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage"></div>
             
             <!-- Loading Spinner -->
             <div class="spinner" id="loadingSpinner"></div>
             
             <!-- Login Button -->
             <button type="submit" class="login-button" id="loginBtn">
-                <span id="buttonText">Sign In to Dashboard</span>
+                Sign In
             </button>
         </form>
         
-        <!-- Footer -->
+        <!-- Footer Links -->
         <div class="login-footer">
             <div class="footer-links">
-                <a class="footer-link" onclick="showContactModal()">Help Center</a>
-                <a class="footer-link" onclick="showContactModal()">Contact Support</a>
-                <a class="footer-link" onclick="showAboutModal()">About ScholarX</a>
+                <a class="footer-link" onclick="showContactModal()">Help</a>
+                <a class="footer-link" onclick="showContactModal()">Contact</a>
+                <a class="footer-link" onclick="showAboutModal()">About</a>
                 <a class="footer-link" onclick="showPrivacyModal()">Privacy Policy</a>
                 <a class="footer-link" onclick="showTermsModal()">Terms of Service</a>
+                <a class="footer-link" onclick="showSupportModal()">Support</a>
             </div>
             
             <div class="copyright">
-                © 2024 ScholarX Education Platform. All rights reserved.
+                © 2024 ScholarX. All rights reserved.
             </div>
         </div>
     </div>
 
     <script>
-        // All your existing JavaScript functions remain EXACTLY the same
-        // Only the CSS has been optimized for mobile view
-        
-        // Load kcdata from localStorage
+        // Load kcdata from localStorage - Dynamic function that always reads fresh data
         function loadKcData() {
             try {
                 const storedData = localStorage.getItem('kcdata');
@@ -755,6 +367,7 @@ backdrop-filter: blur(10px);
                     return JSON.parse(storedData);
                 }
                 
+                // If no data in localStorage, create initial sample data
                 const sampleData = [
                     {
                         regNumber: "KC2024001",
@@ -818,6 +431,7 @@ backdrop-filter: blur(10px);
                     }
                 ];
                 
+                // Save sample data to localStorage
                 localStorage.setItem('kcdata', JSON.stringify(sampleData));
                 return sampleData;
             } catch (error) {
@@ -826,10 +440,12 @@ backdrop-filter: blur(10px);
             }
         }
         
-        // Authenticate user
+        // Authenticate user - Dynamic function that checks against current kcdata
         function authenticateUser(email, password) {
+            // Always load fresh data from localStorage
             const kcdata = loadKcData();
             
+            // Find user in kcdata array (case-insensitive email match)
             const user = kcdata.find(entry => 
                 entry.email.toLowerCase() === email.toLowerCase() && 
                 entry.password === password
@@ -838,12 +454,16 @@ backdrop-filter: blur(10px);
             return user;
         }
         
-        // Redirect based on category
+        // Redirect based on category - Dynamic redirection based on user category
         function redirectBasedOnCategory(user) {
+            // Store user info for the dashboard
             localStorage.setItem('currentUser', JSON.stringify(user));
             localStorage.setItem('keplerLoggedInUser', user.fullName);
+            
+            // Store user category for other pages to use
             localStorage.setItem('userCategory', user.category);
             
+            // Redirect based on category - exactly as you specified
             switch(user.category) {
                 case 'Administrator':
                     window.location.href = 'admindash.html';
@@ -858,6 +478,7 @@ backdrop-filter: blur(10px);
                     window.location.href = 'departmentdash.html';
                     break;
                 default:
+                    // If category not recognized, show error
                     throw new Error('Unknown user category: ' + user.category);
             }
         }
@@ -869,36 +490,23 @@ backdrop-filter: blur(10px);
         const togglePassword = document.getElementById('togglePassword');
         const loginBtn = document.getElementById('loginBtn');
         const errorMessage = document.getElementById('errorMessage');
-        const errorText = document.getElementById('errorText');
-        const successMessage = document.getElementById('successMessage');
-        const successText = document.getElementById('successText');
         const loadingSpinner = document.getElementById('loadingSpinner');
-        const buttonText = document.getElementById('buttonText');
-        const demoBanner = document.getElementById('demoBanner');
-        const rememberMe = document.getElementById('rememberMe');
         
         // Toggle password visibility
         togglePassword.addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
             const icon = this.querySelector('i');
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
-                this.setAttribute('aria-label', 'Hide password');
             } else {
                 passwordInput.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
-                this.setAttribute('aria-label', 'Show password');
             }
         });
-        
-        // Show forgot password
-        function showForgotPassword() {
-            alert("Please contact your system administrator or email support@scholarx.com to reset your password.");
-            return false;
-        }
         
         // Handle login form submission
         loginForm.addEventListener('submit', function(e) {
@@ -907,127 +515,96 @@ backdrop-filter: blur(10px);
             const email = emailInput.value.trim();
             const password = passwordInput.value;
             
-            // Reset messages
+            // Reset error message
             errorMessage.style.display = 'none';
-            successMessage.style.display = 'none';
+            errorMessage.textContent = '';
             
-            // Show loading state
-            loginBtn.disabled = true;
-            buttonText.textContent = 'Authenticating...';
+            // Show loading spinner
+            loginBtn.style.display = 'none';
             loadingSpinner.style.display = 'block';
             
-            // Authenticate after a short delay
+            // Authenticate after a short delay (for UX)
             setTimeout(() => {
                 try {
+                    // Validate inputs
                     if (!email || !password) {
                         throw new Error('Please enter both email and password');
                     }
                     
+                    // Authenticate user with current kcdata
                     const user = authenticateUser(email, password);
                     
                     if (!user) {
-                        throw new Error('Invalid email or password. Please check your credentials.');
+                        throw new Error('Invalid email or password');
                     }
                     
-                    // Show success message
-                    successText.textContent = `Welcome back, ${user.fullName}! Redirecting...`;
-                    successMessage.style.display = 'flex';
-                    
-                    // Save remember me preference
-                    if (rememberMe.checked) {
-                        localStorage.setItem('rememberedEmail', email);
-                    } else {
-                        localStorage.removeItem('rememberedEmail');
-                    }
-                    
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        redirectBasedOnCategory(user);
-                    }, 1500);
+                    // Redirect based on category
+                    redirectBasedOnCategory(user);
                     
                 } catch (error) {
                     // Show error message
-                    errorText.textContent = error.message;
-                    errorMessage.style.display = 'flex';
+                    errorMessage.textContent = error.message;
+                    errorMessage.style.display = 'block';
                     
-                    // Reset button state
-                    loginBtn.disabled = false;
-                    buttonText.textContent = 'Sign In to Dashboard';
+                    // Hide loading spinner, show login button
                     loadingSpinner.style.display = 'none';
-                    
-                    // Shake animation for error
-                    loginForm.style.animation = 'shake 0.5s ease';
-                    setTimeout(() => {
-                        loginForm.style.animation = '';
-                    }, 500);
+                    loginBtn.style.display = 'block';
                 }
-            }, 1200);
+            }, 1000); // 1 second delay for UX
         });
         
-        // Modal functions
+        // Modal functions (simplified for login page)
         function showContactModal() {
-            alert("ScholarX Support\n\n📧 Email: support@scholarx.com\n📞 Phone: +250 795 583 674\n🕒 Hours: Mon-Fri, 8AM-6PM EAT");
+            alert("Contact: support@scholarx.com\nPhone: +250 795 583 674");
         }
         
         function showAboutModal() {
-            alert("ScholarX Platform\n\nConnecting Education, Empowering Communication\n\nVersion 2.1.0\n© 2024 ScholarX Inc.");
+            alert("ScholarX - Connecting Education, Empowering Communication");
         }
         
         function showPrivacyModal() {
-            alert("Privacy Policy\n\nWe are committed to protecting your privacy. All user data is encrypted and stored securely. We never share personal information with third parties without consent.");
+            alert("Your privacy is important. We protect all user data.");
         }
         
         function showTermsModal() {
-            alert("Terms of Service\n\nBy accessing ScholarX, you agree to:\n1. Use the platform for educational purposes only\n2. Maintain academic integrity\n3. Respect all users and staff\n4. Follow institutional policies");
+            alert("By using ScholarX, you agree to our terms of service.");
         }
         
-        // Initialize on load
+        function showSupportModal() {
+            alert("For support, email: support@scholarx.com");
+        }
+        
+        // Load on first visit
         document.addEventListener('DOMContentLoaded', function() {
-            // Load kcdata
+            // Initialize kcdata if it doesn't exist
             const kcdata = loadKcData();
-            console.log(`ScholarX Login initialized with ${kcdata.length} user records`);
+            console.log(`Login system initialized with ${kcdata.length} user records`);
             
-            // Show demo banner for first-time visitors
-            const firstVisit = !localStorage.getItem('scholarx_visited');
-            if (firstVisit || window.location.href.includes('debug')) {
-                demoBanner.style.display = 'block';
-                localStorage.setItem('scholarx_visited', 'true');
-            }
+            // Fallback for logo
+            const logo = document.querySelector('.logo');
+            logo.onerror = function() {
+                this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234A6FFF"/><text x="50" y="65" font-family="Arial" font-size="50" fill="white" text-anchor="middle">SX</text></svg>';
+            };
             
-            // Load remembered email
-            const rememberedEmail = localStorage.getItem('rememberedEmail');
-            if (rememberedEmail) {
-                emailInput.value = rememberedEmail;
-                rememberMe.checked = true;
-                passwordInput.focus();
-            } else {
-                emailInput.focus();
-            }
+            // Fallback for background image
+            const bgImage = new Image();
+            bgImage.src = 'scholarimage.png';
+            bgImage.onerror = function() {
+                document.body.style.backgroundColor = '#0A0F1F';
+                document.body.style.backgroundImage = 'radial-gradient(circle at 15% 50%, rgba(74, 111, 255, 0.1) 0%, transparent 20%), radial-gradient(circle at 85% 30%, rgba(0, 201, 183, 0.05) 0%, transparent 20%)';
+            };
             
-            // Add CSS for shake animation
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes shake {
-                    0%, 100% { transform: translateX(0); }
-                    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-                    20%, 40%, 60%, 80% { transform: translateX(5px); }
-                }
-            `;
-            document.head.appendChild(style);
-            
-            // Add input validation styles
-            emailInput.addEventListener('input', function() {
-                this.style.borderColor = this.value.includes('@') && this.value.includes('.') 
-                    ? 'var(--success)' 
-                    : '';
-            });
+            // Pre-fill demo credentials for testing (remove in production)
+            // Uncomment for testing:
+            // emailInput.value = 'admin@keplercollege.edu';
+            // passwordInput.value = 'Admin@Secure';
         });
         
-        // Debug function
+        // Add a debug function to check current kcdata (can be removed in production)
         window.debugKcData = function() {
             const data = loadKcData();
-            console.log("Current kcdata:", data);
-            alert(`ScholarX User Database\n\nTotal Users: ${data.length}\n\nCategories:\n${[...new Set(data.map(d => d.category))].join('\n')}`);
+            console.log("Current kcdata in localStorage:", data);
+            alert(`Current kcdata has ${data.length} records\nCategories: ${[...new Set(data.map(d => d.category))].join(', ')}`);
         };
     </script>
 </body>
