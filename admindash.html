@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard - ScholarX Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1A1F36;
+            --primary-dark: #1A1F36;
+            --secondary: #1A1F36;
+            --accent: #00C9B7;
+            --light: #F8FAFC;
+            --gray-light: #E2E8F0;
+            --gray: #94A3B8;
+            --gray-dark: #64748B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --sidebar-width: 260px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 8px -5px rgba(0, 0, 0, 0.04);
+            --radius: 16px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+            --header-height: 70px;
+            --bottom-nav-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #F8FAFC;
+            color: #334155;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: var(--bottom-nav-height);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Top Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background: linear-gradient(180deg, var(--secondary) 0%, #0F172A 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .app-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .admin-badge {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-top: 2px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-pic-small {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            cursor: pointer;
+        }
+
+        /* Mobile Sidebar */
+        .mobile-sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background: linear-gradient(180deg, var(--secondary) 0%, #0F172A 100%);
+            color: white;
+            z-index: 999;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .mobile-nav {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .mobile-nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            padding-left: 25px;
+        }
+
+        .mobile-nav-item.active {
+            background: rgba(0, 201, 183, 0.15);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        .mobile-nav-item i {
+            margin-right: 15px;
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .mobile-sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 20px;
+        }
+
+        .user-profile-mobile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-pic-mobile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+
+        .profile-info-mobile h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 3px;
+        }
+
+        .profile-info-mobile p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .logout-btn-mobile {
+            width: 100%;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .logout-btn-mobile:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: calc(var(--header-height) + 20px) 20px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .page-title p {
+            color: var(--gray-dark);
+            font-size: 15px;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius);
+            padding: 25px;
+            color: white;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .welcome-text h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .welcome-text p {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-item h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .stat-item p {
+            font-size: 11px;
+            opacity: 0.9;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--primary) 0%, #6C8BFF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 20px;
+            color: white;
+        }
+
+        .action-card h3 {
+            font-size: 15px;
+            color: var(--secondary);
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .action-card p {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .stat-icon.system {
+            background: linear-gradient(135deg, var(--primary) 0%, #6C8BFF 100%);
+        }
+
+        .stat-icon.student {
+            background: linear-gradient(135deg, var(--accent) 0%, #2CE0D0 100%);
+        }
+
+        .stat-icon.instructor {
+            background: linear-gradient(135deg, var(--success) 0%, #22C55E 100%);
+        }
+
+        .stat-icon.rating {
+            background: linear-gradient(135deg, var(--warning) 0%, #FBBF24 100%);
+        }
+
+        .stat-icon.feedback {
+            background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+        }
+
+        .stat-icon.trend {
+            background: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 2px;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--gray-dark);
+            font-weight: 600;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--danger);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 25px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .chart-header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .chart-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .chart-container {
+            height: 250px;
+            position: relative;
+        }
+
+        .system-select {
+            padding: 12px 15px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            color: var(--secondary);
+            background: white;
+            width: 100%;
+            font-weight: 500;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        .system-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Best Instructors Section */
+        .best-instructors {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .section-header p {
+            color: var(--gray-dark);
+            font-size: 13px;
+        }
+
+        .instructor-rankings {
+            display: grid;
+            gap: 12px;
+        }
+
+        .instructor-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .instructor-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .instructor-rank {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .instructor-rank.rank-1 {
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+        }
+
+        .instructor-rank.rank-2 {
+            background: linear-gradient(135deg, #94A3B8 0%, #CBD5E1 100%);
+        }
+
+        .instructor-rank.rank-3 {
+            background: linear-gradient(135deg, #92400E 0%, #B45309 100%);
+        }
+
+        .instructor-info {
+            flex: 1;
+            min-width: 0; /* Allows text truncation */
+        }
+
+        .instructor-name {
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .instructor-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 11px;
+            color: var(--gray);
+        }
+
+        .instructor-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Recent Systems */
+        .recent-systems {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .systems-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .systems-table th {
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 2px solid var(--gray-light);
+            color: var(--gray-dark);
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .systems-table td {
+            padding: 14px 10px;
+            border-bottom: 1px solid var(--gray-light);
+            font-size: 14px;
+        }
+
+        .systems-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .systems-table tr:hover {
+            background: var(--light);
+        }
+
+        .system-name {
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .system-course {
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(74, 111, 255, 0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 6px;
+            border-radius: 6px;
+            transition: var(--transition);
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: var(--gray-light);
+            color: var(--secondary);
+        }
+
+        /* Top Feedback */
+        .top-feedback {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .feedback-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+
+        .feedback-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .feedback-content {
+            flex: 1;
+        }
+
+        .feedback-text {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--secondary);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .feedback-count {
+            font-size: 11px;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--bottom-nav-height);
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            padding: 0 10px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--gray);
+            padding: 10px 5px;
+            border-radius: var(--radius-xs);
+            transition: var(--transition);
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .nav-tab:hover {
+            background: var(--light);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            background: rgba(74, 111, 255, 0.08);
+        }
+
+        .nav-tab i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-tab span {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-tab.active i {
+            color: var(--primary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--bottom-nav-height) + 20px);
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--secondary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            opacity: 0;
+            transition: transform 0.4s, opacity 0.4s;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--gray-dark);
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(74, 111, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74, 111, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--gray-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+            border-color: var(--gray);
+        }
+
+        /* Refresh Button */
+        .refresh-btn {
+            position: fixed;
+            bottom: calc(var(--bottom-nav-height) + 20px);
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 100;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .refresh-btn:hover {
+            transform: rotate(90deg) scale(1.1);
+            background: var(--primary-dark);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Loading Animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .welcome-stats {
+                gap: 20px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                padding: 0 30px;
+            }
+            
+            .main-content {
+                padding: calc(var(--header-height) + 30px) 30px 30px;
+            }
+            
+            .welcome-card {
+                padding: 30px;
+            }
+        }
+
+        /* Hide on desktop */
+        @media (min-width: 1024px) {
+            .header, .mobile-sidebar, .bottom-nav, .refresh-btn {
+                display: none;
+            }
+            
+            body {
+                padding-bottom: 0;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="header">
+        <div class="header-left">
+            <img src="logo.png" alt="ScholarX Logo" class="app-logo">
+            <div>
+                <div class="app-name">ScholarX</div>
+                <div class="admin-badge">Admin</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img id="profilePictureMobile" src="default-avatar.png" alt="Profile" class="profile-pic-small">
+        </div>
+    </header>
+
+    <!-- Mobile Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <nav class="mobile-nav">
+            <a href="admindash.html" class="mobile-nav-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="suggestionboxe.html" class="mobile-nav-item">
+                <i class="fas fa-lightbulb"></i>
+                <span>Suggestion Box</span>
+            </a>
+            <a href="ratingandfeedback.html" class="mobile-nav-item">
+                <i class="fas fa-star"></i>
+                <span>Rating & Feedback</span>
+            </a>
+            <a href="adminLH.html" class="mobile-nav-item">
+                <i class="fas fa-book-open"></i>
+                <span>Learning HUB</span>
+            </a>
+            <a href="settingA.html" class="mobile-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        <div class="mobile-sidebar-footer">
+            <div class="user-profile-mobile">
+                <img id="profilePictureMobileLarge" src="default-avatar.png" alt="Profile" class="profile-pic-mobile">
+                <div class="profile-info-mobile">
+                    <h4 id="adminNameMobile">Loading...</h4>
+                    <p id="adminRoleMobile">Administrator</p>
+                    <p id="adminEmailMobile" style="font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 2px;"></p>
+                </div>
+            </div>
+            <button class="logout-btn-mobile" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Admin Dashboard</h1>
+                <p>Overview of all rating and feedback systems</p>
+            </div>
+        </div>
+
+        <!-- Welcome Card -->
+        <div class="welcome-card" id="welcomeCard">
+            <div class="welcome-text">
+                <h2>Welcome back, <span id="greetingName">Admin</span>! 👋</h2>
+                <p>Here's what's happening with your rating systems today.</p>
+            </div>
+            <div class="welcome-stats">
+                <div class="stat-item">
+                    <h3 id="totalSystems">0</h3>
+                    <p>Active Systems</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="todayFeedback">0</h3>
+                    <p>Today's Feedback</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="avgRating">0.0</h3>
+                    <p>Avg Rating</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="action-card" onclick="window.location.href='ratingandfeedback.html'">
+                <div class="action-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <h3>Create System</h3>
+                <p>Set up new rating system</p>
+            </div>
+            <div class="action-card" onclick="window.location.href='ratingandfeedback.html'">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>Reports</h3>
+                <p>Generate reports</p>
+            </div>
+            <div class="action-card" onclick="window.location.href='suggestionboxe.html'">
+                <div class="action-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3>Suggestions</h3>
+                <p>Student suggestions</p>
+            </div>
+            <div class="action-card" onclick="window.location.href='adminLH.html'">
+                <div class="action-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3>Learning Hub</h3>
+                <p>Resources</p>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="statTotalSystems">0</div>
+                        <div class="stat-label">Total Systems</div>
+                    </div>
+                    <div class="stat-icon system">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive" id="systemChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>0% from last month</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="statTotalStudents">0</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-icon student">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive" id="studentChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>0% from last month</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="statTotalInstructors">0</div>
+                        <div class="stat-label">Total Instructors</div>
+                    </div>
+                    <div class="stat-icon instructor">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive" id="instructorChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>0% from last month</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="statAvgSystemRating">0.0</div>
+                        <div class="stat-label">Avg Rating</div>
+                    </div>
+                    <div class="stat-icon rating">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="stat-change positive" id="ratingChange">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>0% from last month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>Session Ratings</h3>
+                <select id="systemSelect" class="system-select" onchange="updateSystemChart()">
+                    <option value="">Select a system...</option>
+                    <!-- Systems will be populated here -->
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="systemChart"></canvas>
+            </div>
+            <div id="chartPlaceholder" class="empty-state" style="display: none;">
+                <i class="fas fa-chart-line"></i>
+                <p>Select a system to view session ratings</p>
+            </div>
+        </div>
+
+        <!-- Top Feedback -->
+        <div class="top-feedback">
+            <div class="section-header">
+                <div>
+                    <h3>Top Common Feedbacks</h3>
+                    <p>Most selected by students</p>
+                </div>
+            </div>
+            <div id="topFeedbacksList">
+                <!-- Top feedbacks will be populated here -->
+            </div>
+        </div>
+
+        <!-- Best Instructors Section -->
+        <div class="best-instructors">
+            <div class="section-header">
+                <div>
+                    <h2>Top Instructors</h2>
+                    <p>Ranked by overall ratings</p>
+                </div>
+            </div>
+            <div class="instructor-rankings" id="instructorRankings">
+                <!-- Instructor rankings will be populated here -->
+            </div>
+        </div>
+
+        <!-- Recent Systems -->
+        <div class="recent-systems">
+            <div class="section-header">
+                <div>
+                    <h2>Recent Systems</h2>
+                    <p>Latest systems with activity</p>
+                </div>
+                <a href="ratingandfeedback.html" class="btn btn-secondary" style="padding: 10px 15px; font-size: 13px;">
+                    <i class="fas fa-eye"></i>
+                    <span>View All</span>
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="systems-table">
+                    <thead>
+                        <tr>
+                            <th>System</th>
+                            <th>Rating</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentSystemsTable">
+                        <!-- Recent systems will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Refresh Button -->
+        <button class="refresh-btn" onclick="refreshData()">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast">
+            <i class="fas fa-check-circle"></i>
+            <span id="toastMessage">Operation completed successfully!</span>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="admindash.html" class="nav-tab active">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="ratingandfeedback.html" class="nav-tab">
+            <i class="fas fa-star"></i>
+            <span>Ratings</span>
+        </a>
+        <a href="suggestionboxe.html" class="nav-tab">
+            <i class="fas fa-lightbulb"></i>
+            <span>Suggestions</span>
+        </a>
+        <a href="adminLH.html" class="nav-tab">
+            <i class="fas fa-book-open"></i>
+            <span>Learning Hub</span>
+        </a>
+        <a href="settingA.html" class="nav-tab">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let ratingSystems = [];
+        let systemChart = null;
+        let dashboardData = {
+            previousMonth: {
+                systems: 0,
+                students: 0,
+                instructors: 0,
+                rating: 0,
+                feedback: 0
+            }
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load user from login data
+            loadUserFromLogin();
+            
+            // Load rating systems data
+            loadRatingSystems();
+            
+            // Setup mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeMobileSidebar);
+            
+            // Add swipe to close sidebar
+            setupSwipeGestures();
+            
+            // Initialize tooltips for truncated content
+            initTooltips();
+        });
+
+        // Load user from login.html data
+        function loadUserFromLogin() {
+            try {
+                // Try to get user data from localStorage (set by login.html)
+                const userData = localStorage.getItem('currentUser');
+                const kcdata = JSON.parse(localStorage.getItem('kcdata') || '[]');
+                
+                if (userData) {
+                    currentUser = JSON.parse(userData);
+                } else if (kcdata.length > 0) {
+                    // If no current user, try to find admin user in kcdata
+                    currentUser = kcdata.find(user => user.role === 'admin') || kcdata[0];
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+                
+                // Update UI with user data
+                if (currentUser) {
+                    const adminName = currentUser.name || currentUser.username || 'Admin User';
+                    document.getElementById('adminNameMobile').textContent = adminName;
+                    document.getElementById('adminRoleMobile').textContent = currentUser.role || 'Administrator';
+                    document.getElementById('adminEmailMobile').textContent = currentUser.email || '';
+                    document.getElementById('greetingName').textContent = adminName.split(' ')[0] || 'Admin';
+                    
+                    // Set profile picture if available
+                    if (currentUser.profilePic) {
+                        document.getElementById('profilePictureMobile').src = currentUser.profilePic;
+                        document.getElementById('profilePictureMobileLarge').src = currentUser.profilePic;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                document.getElementById('adminNameMobile').textContent = 'Administrator';
+            }
+        }
+
+        // Load rating systems data
+        function loadRatingSystems() {
+            try {
+                const stored = JSON.parse(localStorage.getItem('ratingSystems') || '[]');
+                ratingSystems = stored;
+                
+                // Load previous month data for comparison
+                const storedDashboardData = JSON.parse(localStorage.getItem('dashboardData') || '{}');
+                if (storedDashboardData.previousMonth) {
+                    dashboardData.previousMonth = storedDashboardData.previousMonth;
+                }
+                
+                // Update dashboard
+                updateDashboard();
+            } catch (error) {
+                console.error('Error loading rating systems:', error);
+                showToast('Error loading data. Please refresh.', 'error');
+            }
+        }
+
+        // Update dashboard with real data
+        function updateDashboard() {
+            // Calculate statistics from real data
+            const totalSystems = ratingSystems.length;
+            const totalStudents = ratingSystems.reduce((sum, system) => sum + (system.students?.length || 0), 0);
+            const totalInstructors = ratingSystems.reduce((sum, system) => sum + (system.instructors?.length || 0), 0);
+            
+            // Calculate average rating
+            let totalRating = 0;
+            let ratedSystems = 0;
+            ratingSystems.forEach(system => {
+                if (system.ratings) {
+                    Object.values(system.ratings).forEach(session => {
+                        if (session.averageRating > 0) {
+                            totalRating += session.averageRating;
+                            ratedSystems++;
+                        }
+                    });
+                }
+            });
+            const avgRating = ratedSystems > 0 ? (totalRating / ratedSystems) : 0;
+            
+            // Calculate total feedback
+            let totalFeedback = 0;
+            ratingSystems.forEach(system => {
+                if (system.ratings) {
+                    Object.values(system.ratings).forEach(session => {
+                        // Count written feedback
+                        totalFeedback += session.studentFeedback?.length || 0;
+                        // Count selected feedbacks
+                        if (session.selectedFeedbacks) {
+                            Object.values(session.selectedFeedbacks).forEach(count => {
+                                totalFeedback += count;
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Calculate today's feedback (mock - in real app, would filter by date)
+            const todayFeedback = Math.floor(totalFeedback * 0.1); // 10% of total for demo
+            
+            // Update welcome card
+            document.getElementById('totalSystems').textContent = totalSystems;
+            document.getElementById('todayFeedback').textContent = todayFeedback;
+            document.getElementById('avgRating').textContent = avgRating.toFixed(1);
+            
+            // Update stats grid
+            document.getElementById('statTotalSystems').textContent = totalSystems;
+            document.getElementById('statTotalStudents').textContent = totalStudents;
+            document.getElementById('statTotalInstructors').textContent = totalInstructors;
+            document.getElementById('statAvgSystemRating').textContent = avgRating.toFixed(1);
+            
+            // Calculate percentage changes
+            updatePercentageChanges(totalSystems, totalStudents, totalInstructors, avgRating, totalFeedback);
+            
+            // Update system dropdown for chart
+            updateSystemDropdown();
+            
+            // Update recent systems table
+            updateRecentSystems();
+            
+            // Update top feedbacks
+            updateTopFeedbacks();
+            
+            // Update instructor rankings
+            updateInstructorRankings();
+            
+            // Save current data as previous month data for next time
+            saveDashboardData(totalSystems, totalStudents, totalInstructors, avgRating, totalFeedback);
+        }
+
+        // Update system dropdown for chart selection
+        function updateSystemDropdown() {
+            const select = document.getElementById('systemSelect');
+            const placeholder = document.getElementById('chartPlaceholder');
+            
+            // Clear existing options except the first one
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Add systems to dropdown
+            ratingSystems.forEach((system, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                const displayName = system.systemName.length > 30 
+                    ? system.systemName.substring(0, 27) + '...' 
+                    : system.systemName;
+                option.textContent = `${displayName}`;
+                select.appendChild(option);
+            });
+            
+            // If there are systems, select the first one
+            if (ratingSystems.length > 0) {
+                select.value = 0;
+                updateSystemChart();
+                placeholder.style.display = 'none';
+            } else {
+                placeholder.style.display = 'block';
+            }
+        }
+
+        // Update chart for selected system
+        function updateSystemChart() {
+            const select = document.getElementById('systemSelect');
+            const systemIndex = parseInt(select.value);
+            const placeholder = document.getElementById('chartPlaceholder');
+            
+            if (isNaN(systemIndex) || systemIndex < 0) {
+                // Hide chart, show placeholder
+                placeholder.style.display = 'block';
+                if (systemChart) {
+                    systemChart.destroy();
+                    systemChart = null;
+                }
+                return;
+            }
+            
+            const system = ratingSystems[systemIndex];
+            
+            // Hide placeholder
+            placeholder.style.display = 'none';
+            
+            // Get session ratings data
+            const sessionNames = system.sessions || [];
+            const sessionRatings = sessionNames.map(sessionName => {
+                const sessionData = system.ratings?.[sessionName];
+                return sessionData ? (sessionData.averageRating || 0) : 0;
+            });
+            
+            // Create or update chart
+            const ctx = document.getElementById('systemChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (systemChart) {
+                systemChart.destroy();
+            }
+            
+            // Create line chart optimized for mobile
+            systemChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sessionNames.map((name, index) => `S${index + 1}`),
+                    datasets: [{
+                        label: 'Session Rating',
+                        data: sessionRatings,
+                        backgroundColor: 'rgba(74, 111, 255, 0.1)',
+                        borderColor: 'rgb(74, 111, 255)',
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: sessionRatings.map(rating => {
+                            // Color points based on rating
+                            if (rating >= 4) return 'rgb(16, 185, 129)'; // Green for high ratings
+                            if (rating >= 3) return 'rgb(245, 158, 11)'; // Yellow for medium ratings
+                            return 'rgb(239, 68, 68)'; // Red for low ratings
+                        }),
+                        pointBorderColor: 'rgb(255, 255, 255)',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Rating',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sessions',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 31, 54, 0.95)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            padding: 10,
+                            titleFont: {
+                                size: 12
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    return `Rating: ${context.raw.toFixed(1)}/5.0`;
+                                },
+                                title: function(context) {
+                                    const sessionIndex = context[0].dataIndex;
+                                    return sessionNames[sessionIndex] || `Session ${sessionIndex + 1}`;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.4 // Smooth curve
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update instructor rankings
+        function updateInstructorRankings() {
+            const container = document.getElementById('instructorRankings');
+            
+            // Collect all instructors with their ratings across all systems
+            const instructorScores = {};
+            
+            ratingSystems.forEach(system => {
+                if (system.instructors && system.ratings) {
+                    system.instructors.forEach(instructor => {
+                        if (!instructorScores[instructor.code]) {
+                            instructorScores[instructor.code] = {
+                                name: instructor.name,
+                                code: instructor.code,
+                                totalRating: 0,
+                                ratedSessions: 0,
+                                systems: []
+                            };
+                        }
+                        
+                        // Add system to instructor's list
+                        instructorScores[instructor.code].systems.push({
+                            name: system.systemName,
+                            rating: calculateSystemRating(system)
+                        });
+                        
+                        // Calculate average rating for this instructor across all sessions
+                        let total = 0;
+                        let count = 0;
+                        
+                        system.sessions.forEach(sessionName => {
+                            const sessionData = system.ratings?.[sessionName];
+                            if (sessionData && sessionData.instructorRatings) {
+                                const rating = sessionData.instructorRatings[instructor.code] || 0;
+                                if (rating > 0) {
+                                    total += rating;
+                                    count++;
+                                }
+                            }
+                        });
+                        
+                        if (count > 0) {
+                            instructorScores[instructor.code].totalRating += total;
+                            instructorScores[instructor.code].ratedSessions += count;
+                        }
+                    });
+                }
+            });
+            
+            // Convert to array and calculate averages
+            const instructors = Object.values(instructorScores)
+                .filter(instructor => instructor.ratedSessions > 0)
+                .map(instructor => ({
+                    ...instructor,
+                    averageRating: instructor.totalRating / instructor.ratedSessions,
+                    systemCount: instructor.systems.length
+                }))
+                .sort((a, b) => b.averageRating - a.averageRating)
+                .slice(0, 3); // Top 3 instructors for mobile
+            
+            if (instructors.length > 0) {
+                container.innerHTML = '';
+                
+                instructors.forEach((instructor, index) => {
+                    const rank = index + 1;
+                    const displayName = instructor.name.length > 20 
+                        ? instructor.name.substring(0, 17) + '...' 
+                        : instructor.name;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'instructor-card';
+                    card.innerHTML = `
+                        <div class="instructor-rank rank-${rank}">
+                            ${rank}
+                        </div>
+                        <div class="instructor-info">
+                            <div class="instructor-name" title="${instructor.name}">${displayName}</div>
+                            <div class="instructor-details">
+                                <span>ID: ${instructor.code}</span>
+                                <span>•</span>
+                                <span>${instructor.systemCount} systems</span>
+                            </div>
+                        </div>
+                        <div class="instructor-rating">
+                            <i class="fas fa-star"></i>
+                            <span>${instructor.averageRating.toFixed(1)}</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <p>No instructor ratings available yet</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update percentage changes
+        function updatePercentageChanges(systems, students, instructors, rating, feedback) {
+            const prev = dashboardData.previousMonth;
+            
+            // Calculate percentages
+            const systemPercent = prev.systems > 0 ? Math.round(((systems - prev.systems) / prev.systems) * 100) : 100;
+            const studentPercent = prev.students > 0 ? Math.round(((students - prev.students) / prev.students) * 100) : 100;
+            const instructorPercent = prev.instructors > 0 ? Math.round(((instructors - prev.instructors) / prev.instructors) * 100) : 100;
+            const ratingPercent = prev.rating > 0 ? Math.round(((rating - prev.rating) / prev.rating) * 100) : 100;
+            
+            // Update UI
+            updateChangeElement('systemChange', systemPercent);
+            updateChangeElement('studentChange', studentPercent);
+            updateChangeElement('instructorChange', instructorPercent);
+            updateChangeElement('ratingChange', ratingPercent);
+        }
+
+        // Update change element
+        function updateChangeElement(elementId, percent) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const arrow = element.querySelector('i');
+            const span = element.querySelector('span');
+            
+            if (arrow && span) {
+                element.className = 'stat-change ' + (percent >= 0 ? 'positive' : 'negative');
+                arrow.className = percent >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
+                span.textContent = `${Math.abs(percent)}% from last month`;
+            }
+        }
+
+        // Save dashboard data for comparison
+        function saveDashboardData(systems, students, instructors, rating, feedback) {
+            dashboardData.previousMonth = {
+                systems,
+                students,
+                instructors,
+                rating,
+                feedback
+            };
+            localStorage.setItem('dashboardData', JSON.stringify(dashboardData));
+        }
+
+        // Update recent systems table
+        function updateRecentSystems() {
+            const tableBody = document.getElementById('recentSystemsTable');
+            
+            if (ratingSystems.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 30px;">
+                            <div class="empty-state" style="padding: 0;">
+                                <i class="fas fa-star"></i>
+                                <p>No rating systems created yet</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Sort systems by updated date (most recent first)
+            const sortedSystems = [...ratingSystems].sort((a, b) => {
+                return new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt);
+            }).slice(0, 3); // Show only 3 most recent for mobile
+            
+            tableBody.innerHTML = '';
+            sortedSystems.forEach((system, index) => {
+                const avgRating = calculateSystemRating(system);
+                const updatedDate = new Date(system.updatedAt || system.createdAt);
+                
+                // Determine status based on activity
+                const daysSinceUpdate = Math.floor((new Date() - updatedDate) / (1000 * 60 * 60 * 24));
+                const status = daysSinceUpdate < 7 ? 'Active' : 'Pending';
+                
+                // Truncate system name if too long
+                const displayName = system.systemName.length > 15 
+                    ? system.systemName.substring(0, 12) + '...' 
+                    : system.systemName;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="system-name" title="${system.systemName}">${displayName}</div>
+                        <div class="system-course">${system.students?.length || 0} students</div>
+                    </td>
+                    <td>
+                        <div class="rating-badge">
+                            <i class="fas fa-star"></i>
+                            <span>${avgRating.toFixed(1)}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${status.toLowerCase()}">${status}</span>
+                    </td>
+                    <td>
+                        <button class="action-btn" onclick="viewSystem(${index})" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Calculate system rating
+        function calculateSystemRating(system) {
+            if (!system.ratings) return 0;
+            
+            let total = 0;
+            let count = 0;
+            
+            Object.values(system.ratings).forEach(session => {
+                total += session.averageRating || 0;
+                count++;
+            });
+            
+            return count > 0 ? total / count : 0;
+        }
+
+        // Update top feedbacks
+        function updateTopFeedbacks() {
+            const container = document.getElementById('topFeedbacksList');
+            
+            // Aggregate all selected feedbacks across all systems
+            const allFeedbacks = {};
+            ratingSystems.forEach(system => {
+                if (system.ratings) {
+                    Object.values(system.ratings).forEach(session => {
+                        if (session.selectedFeedbacks) {
+                            Object.entries(session.selectedFeedbacks).forEach(([feedback, count]) => {
+                                if (count > 0) {
+                                    allFeedbacks[feedback] = (allFeedbacks[feedback] || 0) + count;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Sort by count and get top 3 for mobile
+            const topFeedbacks = Object.entries(allFeedbacks)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            if (topFeedbacks.length > 0) {
+                container.innerHTML = '';
+                topFeedbacks.forEach(([feedback, count], index) => {
+                    // Truncate feedback if too long
+                    const displayFeedback = feedback.length > 60 
+                        ? feedback.substring(0, 57) + '...' 
+                        : feedback;
+                    
+                    const feedbackItem = document.createElement('div');
+                    feedbackItem.className = 'feedback-item';
+                    feedbackItem.innerHTML = `
+                        <div class="feedback-icon">
+                            <i class="fas fa-comment${index === 0 ? '-alt' : ''}"></i>
+                        </div>
+                        <div class="feedback-content">
+                            <div class="feedback-text" title="${feedback}">${displayFeedback}</div>
+                            <div class="feedback-count">
+                                <i class="fas fa-users"></i>
+                                <span>Selected by ${count} student${count !== 1 ? 's' : ''}</span>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(feedbackItem);
+                });
+            } else {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        <i class="fas fa-comments"></i>
+                        <p>No common feedbacks selected yet</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Mobile sidebar functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Setup swipe gestures for mobile
+        function setupSwipeGestures() {
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                const sidebar = document.getElementById('mobileSidebar');
+                
+                // Swipe left to close sidebar if open
+                if (sidebar.classList.contains('active') && touchStartX - touchEndX > 100) {
+                    closeMobileSidebar();
+                }
+            });
+        }
+
+        // Initialize tooltips for truncated content
+        function initTooltips() {
+            // This would be implemented with a tooltip library in a real app
+            // For now, we use the native title attribute
+        }
+
+        // View system (redirect to rating page)
+        function viewSystem(index) {
+            // Store the index to view in sessionStorage
+            sessionStorage.setItem('viewSystemIndex', index);
+            // Redirect to rating page
+            window.location.href = 'ratingandfeedback.html';
+        }
+
+        // Edit system (redirect to rating page)
+        function editSystem(index) {
+            // Store the index to edit in sessionStorage
+            sessionStorage.setItem('editSystemIndex', index);
+            // Redirect to rating page
+            window.location.href = 'ratingandfeedback.html';
+        }
+
+        // Refresh data
+        function refreshData() {
+            loadRatingSystems();
+            showToast('Data refreshed successfully!', 'success');
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                sessionStorage.clear();
+                showToast('Logged out successfully', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'loginAdmin.html';
+                }, 1500);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast' + (type === 'success' ? ' success' : ' error');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Auto-refresh data every 5 minutes
+        setInterval(refreshData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

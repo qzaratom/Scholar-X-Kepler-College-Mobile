@@ -1,0 +1,2411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ScholarX Admin - Learning Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #1A1F36;
+            --primary-dark: #1A1F36;
+            --secondary: #1A1F36;
+            --accent: #00C9B7;
+            --light: #F8FAFC;
+            --gray-light: #E2E8F0;
+            --gray: #94A3B8;
+            --gray-dark: #64748B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --student: #6366F1;
+            --beginner: #8B5CF6;
+            --amateur: #EC4899;
+            --semi-pro: #F59E0B;
+            --professional: #EF4444;
+            --worldclass: #10B981;
+            --legendary: #06B6D4;
+            --genius: #7C3AED;
+            --header-height: 70px;
+            --bottom-nav-height: 70px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 8px -5px rgba(0, 0, 0, 0.04);
+            --radius: 16px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #F8FAFC;
+            color: #334155;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: var(--bottom-nav-height);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Top Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background: linear-gradient(180deg, var(--secondary) 0%, #0F172A 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .app-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .admin-badge {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-top: 2px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-pic-small {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            cursor: pointer;
+        }
+
+        /* Mobile Sidebar */
+        .mobile-sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background: linear-gradient(180deg, var(--secondary) 0%, #0F172A 100%);
+            color: white;
+            z-index: 999;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .mobile-nav {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .mobile-nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            padding-left: 25px;
+        }
+
+        .mobile-nav-item.active {
+            background: rgba(0, 201, 183, 0.15);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        .mobile-nav-item i {
+            margin-right: 15px;
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .mobile-sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 20px;
+        }
+
+        .user-profile-mobile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-pic-mobile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+
+        .profile-info-mobile h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 3px;
+        }
+
+        .profile-info-mobile p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .logout-btn-mobile {
+            width: 100%;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .logout-btn-mobile:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: calc(var(--header-height) + 20px) 20px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Header Section */
+        .hub-header {
+            margin-bottom: 25px;
+        }
+
+        .header-title h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            color: var(--gray-dark);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 50px 14px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+            font-weight: 500;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .icon-students { background: linear-gradient(135deg, var(--primary), #6C8BFF); }
+        .icon-points { background: linear-gradient(135deg, var(--accent), #2CE0D0); }
+        .icon-badges { background: linear-gradient(135deg, var(--success), #22C55E); }
+        .icon-active { background: linear-gradient(135deg, var(--warning), #FBBF24); }
+
+        .stat-info h3 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-info p {
+            color: var(--gray-dark);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Controls */
+        .controls-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .filter-sort-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sort-select, .filter-select {
+            padding: 13px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            background: white;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+        }
+
+        .sort-select:focus, .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        #expertiseFilter {
+            width: 100%;
+        }
+
+        .expertise-input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .expertise-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+        }
+
+        /* Students Table Container */
+        .students-table-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .table-header {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .add-student-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            font-size: 15px;
+            box-shadow: 0 4px 12px rgba(74, 111, 255, 0.25);
+        }
+
+        .add-student-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74, 111, 255, 0.3);
+        }
+
+        /* Students Table - Mobile Optimized */
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius-sm);
+        }
+
+        .students-table th {
+            text-align: left;
+            padding: 15px 12px;
+            border-bottom: 2px solid var(--gray-light);
+            color: var(--gray-dark);
+            font-weight: 700;
+            font-size: 12px;
+            white-space: nowrap;
+            background: var(--light);
+        }
+
+        .students-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid var(--gray-light);
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .students-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .students-table tr:hover {
+            background: var(--light);
+        }
+
+        .student-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gray-light);
+        }
+
+        .default-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .student-info h4 {
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .student-info p {
+            font-size: 12px;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .badge-img {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+        }
+
+        .points-display {
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: var(--radius-xs);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-width: 70px;
+            justify-content: center;
+        }
+
+        .view-btn {
+            background: rgba(74, 111, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .view-btn:hover {
+            background: rgba(74, 111, 255, 0.2);
+        }
+
+        .edit-btn {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .edit-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .delete-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--gray-dark);
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modalFadeIn 0.3s ease-out;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-xs);
+        }
+
+        .close-modal:hover {
+            background: var(--light);
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+        }
+
+        /* Profile Upload */
+        .profile-upload {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+            position: relative;
+            cursor: pointer;
+            background: var(--light);
+        }
+
+        .profile-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light);
+            color: var(--gray);
+            font-size: 36px;
+        }
+
+        .upload-text {
+            color: var(--primary);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 15px;
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: rgba(74, 111, 255, 0.1);
+        }
+
+        .upload-text:hover {
+            background: rgba(74, 111, 255, 0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 15px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(74, 111, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74, 111, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--secondary);
+            border: 2px solid var(--gray-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+            border-color: var(--gray);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+        }
+
+        /* Student Details */
+        .student-details {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            align-items: center;
+            text-align: center;
+        }
+
+        .student-details-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--primary);
+            background: var(--light);
+        }
+
+        .student-details-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-details-info {
+            width: 100%;
+        }
+
+        .student-details-info h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .student-details-info p {
+            margin-bottom: 12px;
+            color: var(--gray-dark);
+            text-align: left;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .student-details-info strong {
+            color: var(--secondary);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--bottom-nav-height) + 20px);
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--secondary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            opacity: 0;
+            transition: transform 0.4s, opacity 0.4s;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--bottom-nav-height);
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            padding: 0 10px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--gray);
+            padding: 10px 5px;
+            border-radius: var(--radius-xs);
+            transition: var(--transition);
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .nav-tab:hover {
+            background: var(--light);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            background: rgba(74, 111, 255, 0.08);
+        }
+
+        .nav-tab i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-tab span {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-tab.active i {
+            color: var(--primary);
+        }
+
+        /* PDF Download Button */
+        .pdf-download-btn {
+            position: fixed;
+            bottom: calc(var(--bottom-nav-height) + 20px);
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 100;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .pdf-download-btn:hover {
+            transform: translateY(-3px) scale(1.1);
+            background: var(--primary-dark);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 640px) {
+            .stats-cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .table-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .add-student-btn {
+                width: auto;
+            }
+            
+            .filter-sort-group {
+                flex-direction: row;
+            }
+            
+            .sort-select, .filter-select {
+                width: auto;
+                min-width: 180px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                padding: 0 30px;
+            }
+            
+            .main-content {
+                padding: calc(var(--header-height) + 30px) 30px 30px;
+            }
+            
+            .student-details {
+                flex-direction: row;
+                text-align: left;
+                align-items: flex-start;
+            }
+            
+            .student-details-info {
+                width: auto;
+                flex: 1;
+            }
+        }
+
+        /* Hide on desktop */
+        @media (min-width: 1024px) {
+            .header, .mobile-sidebar, .bottom-nav, .pdf-download-btn {
+                display: none;
+            }
+            
+            body {
+                padding-bottom: 0;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="header">
+        <div class="header-left">
+            <img src="logo.png" alt="ScholarX Logo" class="app-logo" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Crect%20width=%22100%22%20height=%22100%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3ESX%3C/text%3E%3C/svg%3E'">
+            <div>
+                <div class="app-name">ScholarX</div>
+                <div class="admin-badge">Learning Hub</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img id="profilePictureMobile" src="default-avatar.png" alt="Profile" class="profile-pic-small" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ccircle%20cx=%2250%22%20cy=%2250%22%20r=%2245%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3EA%3C/text%3E%3C/svg%3E'">
+        </div>
+    </header>
+
+    <!-- Mobile Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <nav class="mobile-nav">
+            <a href="admindash.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="suggestionboxe.html" class="mobile-nav-item">
+                <i class="fas fa-lightbulb"></i>
+                <span>Suggestion Box</span>
+            </a>
+            <a href="ratingandfeedback.html" class="mobile-nav-item">
+                <i class="fas fa-star"></i>
+                <span>Rating & Feedback</span>
+            </a>
+            <a href="adminLH.html" class="mobile-nav-item active">
+                <i class="fas fa-book-open"></i>
+                <span>Learning Hub</span>
+            </a>
+            <a href="settingA.html" class="mobile-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        <div class="mobile-sidebar-footer">
+            <div class="user-profile-mobile">
+                <img id="profilePictureMobileLarge" src="default-avatar.png" alt="Profile" class="profile-pic-mobile" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ccircle%20cx=%2250%22%20cy=%2250%22%20r=%2245%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3EA%3C/text%3E%3C/svg%3E'">
+                <div class="profile-info-mobile">
+                    <h4 id="adminNameMobile">Administrator</h4>
+                    <p id="adminRoleMobile">Learning Hub Admin</p>
+                </div>
+            </div>
+            <button class="logout-btn-mobile" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="hub-header">
+            <div class="header-title">
+                <h1>Student Community</h1>
+                <p>Manage students, track points, and monitor activities</p>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search students...">
+            <button class="search-btn" onclick="searchStudents()">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon icon-students">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalStudents">0</h3>
+                    <p>Total Students</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-points">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalPoints">0</h3>
+                    <p>Total Points</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-badges">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalBadges">0</h3>
+                    <p>Badges Awarded</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-active">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="activeStudents">0</h3>
+                    <p>Active Students</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-container">
+            <div class="filter-sort-group">
+                <select class="sort-select" id="sortSelect" onchange="sortStudents()">
+                    <option value="name-asc">Sort: Name (A-Z)</option>
+                    <option value="name-desc">Sort: Name (Z-A)</option>
+                    <option value="points-desc">Sort: Points (High-Low)</option>
+                    <option value="points-asc">Sort: Points (Low-High)</option>
+                    <option value="badge">Sort: Badge Level</option>
+                </select>
+                
+                <select class="filter-select" id="filterSelect" onchange="filterStudents()">
+                    <option value="all">Filter: All Students</option>
+                    <option value="student">Student Only</option>
+                    <option value="beginner">Beginner Only</option>
+                    <option value="amateur">Amateur Only</option>
+                    <option value="semi-pro">Semi-Pro Only</option>
+                    <option value="professional">Professional Only</option>
+                    <option value="worldclass">World Class Only</option>
+                    <option value="legendary">Legendary Only</option>
+                    <option value="genius">Genius Only</option>
+                    <option value="expertise">Filter by Expertise</option>
+                </select>
+            </div>
+            
+            <div id="expertiseFilter" style="display: none;">
+                <input type="text" class="expertise-input" id="expertiseInput" placeholder="Enter expertise (e.g., Mathematics)" oninput="filterByExpertise()">
+            </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="students-table-container">
+            <div class="table-header">
+                <h2>Students List</h2>
+                <button class="add-student-btn" onclick="openAddStudentModal()">
+                    <i class="fas fa-plus"></i>
+                    Add Student
+                </button>
+            </div>
+            
+            <table class="students-table" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Student</th>
+                        <th>Points</th>
+                        <th>Badge</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                    <!-- Students will be loaded here -->
+                </tbody>
+            </table>
+            <div id="noStudentsMessage" class="empty-state" style="display: none;">
+                <i class="fas fa-users"></i>
+                <h3>No Students Found</h3>
+                <p>Add your first student to get started.</p>
+                <button class="add-student-btn" onclick="openAddStudentModal()" style="margin-top: 15px; width: auto;">
+                    <i class="fas fa-plus"></i>
+                    Add First Student
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- PDF Download Button -->
+    <button class="pdf-download-btn" onclick="downloadPDF()">
+        <i class="fas fa-download"></i>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="admindash.html" class="nav-tab">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="ratingandfeedback.html" class="nav-tab">
+            <i class="fas fa-star"></i>
+            <span>Ratings</span>
+        </a>
+        <a href="suggestionboxe.html" class="nav-tab">
+            <i class="fas fa-lightbulb"></i>
+            <span>Suggestions</span>
+        </a>
+        <a href="adminLH.html" class="nav-tab active">
+            <i class="fas fa-book-open"></i>
+            <span>Hub</span>
+        </a>
+        <a href="settingA.html" class="nav-tab">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- Add/Edit Student Modal -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Student</h2>
+                <button class="close-modal" onclick="closeStudentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-upload">
+                    <div class="profile-preview" onclick="triggerProfileUpload()">
+                        <div class="upload-placeholder" id="profilePlaceholder">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <img id="profilePreview" src="" alt="Profile Preview" style="display: none;">
+                    </div>
+                    <div class="upload-text" onclick="triggerProfileUpload()">
+                        Upload Profile Picture
+                    </div>
+                    <input type="file" id="profilePictureUpload" accept="image/*" style="display: none;" onchange="previewProfilePicture(event)">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" id="studentName" class="form-control" placeholder="Enter full name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Contact Information *</label>
+                    <input type="text" id="studentContact" class="form-control" placeholder="Email or Phone Number" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Area of Expertise *</label>
+                    <input type="text" id="studentExpertise" class="form-control" placeholder="e.g., Mathematics, Programming" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Initial Points</label>
+                    <input type="number" id="studentPoints" class="form-control" value="0" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeStudentModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-success" id="saveStudentBtn" onclick="saveStudent()">
+                    <i class="fas fa-save"></i>
+                    Save Student
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Student Modal -->
+    <div id="viewStudentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Student Details</h2>
+                <button class="close-modal" onclick="closeViewStudentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="student-details">
+                    <div class="student-details-avatar">
+                        <img id="viewStudentAvatar" src="" alt="Student Avatar" onerror="this.style.display='none'">
+                        <div id="viewStudentDefaultAvatar" class="default-avatar"></div>
+                    </div>
+                    <div class="student-details-info">
+                        <h3 id="viewStudentName"></h3>
+                        <p><strong>Student ID:</strong> <span id="viewStudentId"></span></p>
+                        <p><strong>Contact:</strong> <span id="viewStudentContact"></span></p>
+                        <p><strong>Expertise:</strong> <span id="viewStudentExpertise"></span></p>
+                        <p><strong>Badge:</strong> <span id="viewStudentBadgeText"></span></p>
+                        <p><strong>Points:</strong> <span id="viewStudentPoints"></span></p>
+                        <p><strong>Status:</strong> <span id="viewStudentStatus"></span></p>
+                        <p><strong>Joined:</strong> <span id="viewStudentJoined"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeViewStudentModal()">
+                    Close
+                </button>
+                <button class="btn btn-primary" onclick="editStudentFromView()">
+                    <i class="fas fa-edit"></i>
+                    Edit Student
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operation completed successfully!</span>
+    </div>
+
+    <script>
+        // Global variables
+        let studentcom = [];
+        let currentEditId = null;
+        let profilePictureData = null;
+        let currentUser = null;
+        
+        // Badge system configuration
+        const badges = [
+            { 
+                name: "Student", 
+                minPoints: 0, 
+                maxPoints: 499, 
+                image: "student.png",
+                nextLevel: 500,
+                color: "#6366F1"
+            },
+            { 
+                name: "Beginner", 
+                minPoints: 500, 
+                maxPoints: 999, 
+                image: "beginner.png",
+                nextLevel: 1000,
+                color: "#8B5CF6"
+            },
+            { 
+                name: "Amateur", 
+                minPoints: 1000, 
+                maxPoints: 1499, 
+                image: "amature.png",
+                nextLevel: 1500,
+                color: "#EC4899"
+            },
+            { 
+                name: "Semi-Pro", 
+                minPoints: 1500, 
+                maxPoints: 1999, 
+                image: "semi-pro.png",
+                nextLevel: 2000,
+                color: "#F59E0B"
+            },
+            { 
+                name: "Professional", 
+                minPoints: 2000, 
+                maxPoints: 3999, 
+                image: "professional.png",
+                nextLevel: 4000,
+                color: "#EF4444"
+            },
+            { 
+                name: "World Class", 
+                minPoints: 4000, 
+                maxPoints: 9999, 
+                image: "worldclass.png",
+                nextLevel: 10000,
+                color: "#10B981"
+            },
+            { 
+                name: "Legendary", 
+                minPoints: 10000, 
+                maxPoints: 49999, 
+                image: "legendary.png",
+                nextLevel: 50000,
+                color: "#06B6D4"
+            },
+            { 
+                name: "Genius", 
+                minPoints: 50000, 
+                maxPoints: 999999, 
+                image: "genius.png",
+                nextLevel: null,
+                color: "#7C3AED"
+            }
+        ];
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load user data from kcdata array
+            loadUserFromKCData();
+            
+            // Load URL parameters for user info
+            loadUrlParameters();
+            
+            // Load students from localStorage
+            loadStudents();
+            
+            // Setup mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeMobileSidebar);
+            
+            // Add swipe to close sidebar
+            setupSwipeGestures();
+            
+            // Search input event listener
+            document.getElementById('searchInput').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchStudents();
+                } else {
+                    // Real-time search
+                    searchStudents();
+                }
+            });
+            
+            // Filter select change
+            document.getElementById('filterSelect').addEventListener('change', function() {
+                if (this.value === 'expertise') {
+                    document.getElementById('expertiseFilter').style.display = 'block';
+                    filterByExpertise();
+                } else {
+                    document.getElementById('expertiseFilter').style.display = 'none';
+                    filterStudents();
+                }
+            });
+            
+            // Enter key in expertise filter
+            document.getElementById('expertiseInput')?.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    filterByExpertise();
+                }
+            });
+            
+            // Setup keyboard shortcuts
+            setupKeyboardShortcuts();
+        });
+
+        // Load user from kcdata array
+        function loadUserFromKCData() {
+            const kcdata = JSON.parse(localStorage.getItem('kcdata') || '[]');
+            
+            if (kcdata.length > 0) {
+                const adminUser = kcdata.find(user => user.role === 'admin') || kcdata[0];
+                currentUser = adminUser;
+                
+                if (adminUser) {
+                    document.getElementById('adminNameMobile').textContent = adminUser.name || 'Administrator';
+                    document.getElementById('adminRoleMobile').textContent = 'Learning Hub Admin';
+                    
+                    if (adminUser.profilePic) {
+                        document.getElementById('profilePictureMobile').src = adminUser.profilePic;
+                        document.getElementById('profilePictureMobileLarge').src = adminUser.profilePic;
+                    }
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(adminUser));
+                }
+            } else {
+                const storedUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+                if (storedUser) {
+                    currentUser = storedUser;
+                    document.getElementById('adminNameMobile').textContent = storedUser.name || 'Administrator';
+                    document.getElementById('adminRoleMobile').textContent = 'Learning Hub Admin';
+                    
+                    if (storedUser.profilePic) {
+                        document.getElementById('profilePictureMobile').src = storedUser.profilePic;
+                        document.getElementById('profilePictureMobileLarge').src = storedUser.profilePic;
+                    }
+                }
+            }
+            
+            if (!currentUser) {
+                document.getElementById('adminNameMobile').textContent = 'Administrator';
+                document.getElementById('adminRoleMobile').textContent = 'Learning Hub Admin';
+            }
+        }
+
+        // Load URL parameters for user info
+        function loadUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const accountData = urlParams.get('account');
+            
+            if (accountData) {
+                try {
+                    const account = JSON.parse(decodeURIComponent(accountData));
+                    
+                    if (account.name) {
+                        currentUser = currentUser || {};
+                        currentUser.name = account.name;
+                        currentUser.role = account.role || 'User';
+                        currentUser.profilePic = account.profilePic || '';
+                        
+                        document.getElementById('adminNameMobile').textContent = account.name;
+                        document.getElementById('adminRoleMobile').textContent = account.role || 'User';
+                        
+                        if (account.profilePic) {
+                            document.getElementById('profilePictureMobile').src = account.profilePic;
+                            document.getElementById('profilePictureMobileLarge').src = account.profilePic;
+                        }
+                        
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        
+                        showToast(`Welcome ${account.name}!`, 'success');
+                    }
+                } catch (e) {
+                    console.error('Error loading account data:', e);
+                }
+            }
+        }
+
+        // Load students from localStorage
+        function loadStudents() {
+            const storedStudents = JSON.parse(localStorage.getItem('studentcom') || '[]');
+            
+            if (storedStudents.length === 0) {
+                studentcom = createSampleStudents();
+                saveStudents();
+            } else {
+                studentcom = storedStudents;
+            }
+            
+            loadCurrentUserAccount();
+            updateStats();
+            renderStudentsTable();
+        }
+
+        // Create sample students for demonstration
+        function createSampleStudents() {
+            const sampleStudents = [
+                {
+                    id: 1,
+                    name: "Alex Johnson",
+                    contact: "alex.j@example.com",
+                    expertise: "Mathematics, Physics",
+                    points: 350,
+                    status: "Active",
+                    joined: "2024-01-15",
+                    avatar: "",
+                    lastActive: "2024-12-07"
+                },
+                {
+                    id: 2,
+                    name: "Maria Garcia",
+                    contact: "maria.g@example.com",
+                    expertise: "Computer Science, AI",
+                    points: 850,
+                    status: "Active",
+                    joined: "2024-02-10",
+                    avatar: "",
+                    lastActive: "2024-12-07"
+                },
+                {
+                    id: 3,
+                    name: "David Chen",
+                    contact: "+1 (555) 123-4567",
+                    expertise: "Chemistry, Biology",
+                    points: 1250,
+                    status: "Active",
+                    joined: "2024-01-05",
+                    avatar: "",
+                    lastActive: "2024-12-07"
+                },
+                {
+                    id: 4,
+                    name: "Sarah Williams",
+                    contact: "sarah.w@example.com",
+                    expertise: "Literature, History",
+                    points: 1800,
+                    status: "Active",
+                    joined: "2024-03-01",
+                    avatar: "",
+                    lastActive: "2024-12-07"
+                },
+                {
+                    id: 5,
+                    name: "Michael Brown",
+                    contact: "michael.b@example.com",
+                    expertise: "Economics, Statistics",
+                    points: 2800,
+                    status: "Active",
+                    joined: "2024-01-20",
+                    avatar: "",
+                    lastActive: "2024-12-07"
+                }
+            ];
+            
+            return sampleStudents;
+        }
+
+        // Load current user account from connected pages
+        function loadCurrentUserAccount() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const accountData = urlParams.get('account');
+            
+            if (accountData) {
+                try {
+                    const account = JSON.parse(decodeURIComponent(accountData));
+                    
+                    const existingStudent = studentcom.find(student => 
+                        student.contact.toLowerCase() === account.contact?.toLowerCase() || 
+                        student.name.toLowerCase() === account.name?.toLowerCase()
+                    );
+                    
+                    if (!existingStudent && account.name) {
+                        const newStudent = {
+                            id: studentcom.length > 0 ? Math.max(...studentcom.map(s => s.id)) + 1 : 1,
+                            name: account.name,
+                            contact: account.contact || "Not provided",
+                            expertise: account.expertise || "General",
+                            points: 0,
+                            status: "Active",
+                            joined: new Date().toISOString().split('T')[0],
+                            avatar: account.profilePic || "",
+                            lastActive: new Date().toISOString()
+                        };
+                        
+                        studentcom.push(newStudent);
+                        saveStudents();
+                        updateStats();
+                        renderStudentsTable();
+                        
+                        showToast(`New student "${account.name}" added`, 'success');
+                    }
+                } catch (e) {
+                    console.error('Error loading account data:', e);
+                }
+            }
+        }
+
+        // Save students to localStorage
+        function saveStudents() {
+            localStorage.setItem('studentcom', JSON.stringify(studentcom));
+        }
+
+        // Get badge from points
+        function getBadgeFromPoints(points) {
+            for (let i = badges.length - 1; i >= 0; i--) {
+                if (points >= badges[i].minPoints) {
+                    return badges[i];
+                }
+            }
+            return badges[0];
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalStudents = studentcom.length;
+            const totalPoints = studentcom.reduce((sum, student) => sum + student.points, 0);
+            const activeStudents = studentcom.filter(student => student.status === "Active").length;
+            
+            const uniqueBadges = new Set(studentcom.map(student => getBadgeFromPoints(student.points).name));
+            const totalBadges = uniqueBadges.size;
+            
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('totalPoints').textContent = totalPoints.toLocaleString();
+            document.getElementById('totalBadges').textContent = totalBadges;
+            document.getElementById('activeStudents').textContent = activeStudents;
+        }
+
+        // Render students table (optimized for mobile)
+        function renderStudentsTable(filteredStudents = null) {
+            const displayStudents = filteredStudents || studentcom;
+            const tableBody = document.getElementById('studentsTableBody');
+            const noStudentsMessage = document.getElementById('noStudentsMessage');
+            
+            if (displayStudents.length === 0) {
+                tableBody.innerHTML = '';
+                document.getElementById('studentsTable').style.display = 'none';
+                noStudentsMessage.style.display = 'block';
+                return;
+            }
+            
+            noStudentsMessage.style.display = 'none';
+            document.getElementById('studentsTable').style.display = 'block';
+            
+            tableBody.innerHTML = displayStudents.map((student, index) => {
+                const badge = getBadgeFromPoints(student.points);
+                const displayName = student.name.length > 15 ? student.name.substring(0, 12) + '...' : student.name;
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>
+                            <div class="student-profile">
+                                ${student.avatar ? 
+                                    `<img src="${student.avatar}" alt="${student.name}" class="student-avatar">` :
+                                    `<div class="default-avatar">${student.name.charAt(0)}</div>`
+                                }
+                                <div class="student-info">
+                                    <h4 title="${student.name}">${displayName}</h4>
+                                    <p>${student.expertise.split(',')[0]}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="points-display">
+                                ${student.points}
+                            </div>
+                        </td>
+                        <td>
+                            <img src="${badge.image}" alt="${badge.name}" class="badge-img" title="${badge.name}">
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn view-btn" onclick="viewStudent(${student.id})" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn edit-btn" onclick="editStudent(${student.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deleteStudent(${student.id})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Search students
+        function searchStudents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                renderStudentsTable();
+                return;
+            }
+            
+            const filteredStudents = studentcom.filter(student => 
+                student.name.toLowerCase().includes(searchTerm) ||
+                student.contact.toLowerCase().includes(searchTerm) ||
+                student.expertise.toLowerCase().includes(searchTerm)
+            );
+            
+            renderStudentsTable(filteredStudents);
+        }
+
+        // Sort students
+        function sortStudents() {
+            const sortValue = document.getElementById('sortSelect').value;
+            let sortedStudents = [...studentcom];
+            
+            switch(sortValue) {
+                case 'name-asc':
+                    sortedStudents.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    sortedStudents.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+                case 'points-desc':
+                    sortedStudents.sort((a, b) => b.points - a.points);
+                    break;
+                case 'points-asc':
+                    sortedStudents.sort((a, b) => a.points - b.points);
+                    break;
+                case 'badge':
+                    sortedStudents.sort((a, b) => {
+                        const badgeA = getBadgeFromPoints(a.points);
+                        const badgeB = getBadgeFromPoints(b.points);
+                        return badges.findIndex(b => b.name === badgeB.name) - badges.findIndex(b => b.name === badgeA.name);
+                    });
+                    break;
+            }
+            
+            renderStudentsTable(sortedStudents);
+        }
+
+        // Filter students
+        function filterStudents() {
+            const filterValue = document.getElementById('filterSelect').value;
+            
+            if (filterValue === 'all') {
+                renderStudentsTable();
+                return;
+            }
+            
+            const filteredStudents = studentcom.filter(student => {
+                const badge = getBadgeFromPoints(student.points);
+                return badge.name.toLowerCase().replace(' ', '-') === filterValue;
+            });
+            
+            renderStudentsTable(filteredStudents);
+        }
+
+        // Filter by expertise
+        function filterByExpertise() {
+            const expertiseTerm = document.getElementById('expertiseInput').value.toLowerCase();
+            
+            if (!expertiseTerm) {
+                renderStudentsTable();
+                return;
+            }
+            
+            const filteredStudents = studentcom.filter(student => 
+                student.expertise.toLowerCase().includes(expertiseTerm)
+            );
+            
+            renderStudentsTable(filteredStudents);
+        }
+
+        // Mobile sidebar functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Setup swipe gestures for mobile
+        function setupSwipeGestures() {
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                const sidebar = document.getElementById('mobileSidebar');
+                
+                // Swipe left to close sidebar if open
+                if (sidebar.classList.contains('active') && touchStartX - touchEndX > 100) {
+                    closeMobileSidebar();
+                }
+            });
+        }
+
+        // Open add student modal
+        function openAddStudentModal() {
+            currentEditId = null;
+            profilePictureData = null;
+            document.getElementById('modalTitle').textContent = 'Add New Student';
+            document.getElementById('saveStudentBtn').innerHTML = '<i class="fas fa-save"></i> Save Student';
+            
+            // Clear form
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentContact').value = '';
+            document.getElementById('studentExpertise').value = '';
+            document.getElementById('studentPoints').value = '0';
+            
+            // Reset profile picture
+            const preview = document.getElementById('profilePreview');
+            const placeholder = document.getElementById('profilePlaceholder');
+            preview.style.display = 'none';
+            preview.src = '';
+            placeholder.style.display = 'flex';
+            placeholder.innerHTML = '<i class="fas fa-user-plus"></i>';
+            
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        // Close student modal
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.remove('active');
+        }
+
+        // Trigger profile upload
+        function triggerProfileUpload() {
+            document.getElementById('profilePictureUpload').click();
+        }
+
+        // Preview profile picture
+        function previewProfilePicture(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (!file.type.match('image.*')) {
+                    showToast('Please select an image file', 'error');
+                    return;
+                }
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('Image size should be less than 5MB', 'error');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('profilePreview');
+                    const placeholder = document.getElementById('profilePlaceholder');
+                    
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    
+                    profilePictureData = e.target.result;
+                    
+                    showToast('Profile picture selected', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Save student (add or edit)
+        function saveStudent() {
+            const name = document.getElementById('studentName').value.trim();
+            const contact = document.getElementById('studentContact').value.trim();
+            const expertise = document.getElementById('studentExpertise').value.trim();
+            const points = parseInt(document.getElementById('studentPoints').value) || 0;
+            
+            // Validation
+            if (!name) {
+                showToast('Please enter student name', 'error');
+                return;
+            }
+            
+            if (!contact) {
+                showToast('Please enter contact information', 'error');
+                return;
+            }
+            
+            if (!expertise) {
+                showToast('Please enter area of expertise', 'error');
+                return;
+            }
+            
+            if (points < 0) {
+                showToast('Points cannot be negative', 'error');
+                return;
+            }
+            
+            if (currentEditId) {
+                // Edit existing student
+                const studentIndex = studentcom.findIndex(s => s.id === currentEditId);
+                if (studentIndex !== -1) {
+                    studentcom[studentIndex] = {
+                        ...studentcom[studentIndex],
+                        name,
+                        contact,
+                        expertise,
+                        points,
+                        lastActive: new Date().toISOString()
+                    };
+                    
+                    if (profilePictureData) {
+                        studentcom[studentIndex].avatar = profilePictureData;
+                    }
+                    
+                    showToast('Student updated successfully!', 'success');
+                }
+            } else {
+                // Add new student
+                const newStudent = {
+                    id: studentcom.length > 0 ? Math.max(...studentcom.map(s => s.id)) + 1 : 1,
+                    name,
+                    contact,
+                    expertise,
+                    points,
+                    status: "Active",
+                    joined: new Date().toISOString().split('T')[0],
+                    avatar: profilePictureData || "",
+                    lastActive: new Date().toISOString()
+                };
+                
+                studentcom.push(newStudent);
+                showToast('Student added successfully!', 'success');
+            }
+            
+            saveStudents();
+            updateStats();
+            renderStudentsTable();
+            closeStudentModal();
+        }
+
+        // View student details
+        function viewStudent(id) {
+            const student = studentcom.find(s => s.id === id);
+            if (!student) return;
+            
+            const badge = getBadgeFromPoints(student.points);
+            
+            document.getElementById('viewStudentName').textContent = student.name;
+            document.getElementById('viewStudentId').textContent = `S${student.id.toString().padStart(3, '0')}`;
+            document.getElementById('viewStudentContact').textContent = student.contact;
+            document.getElementById('viewStudentExpertise').textContent = student.expertise;
+            document.getElementById('viewStudentBadgeText').textContent = badge.name;
+            document.getElementById('viewStudentPoints').textContent = student.points;
+            document.getElementById('viewStudentStatus').textContent = student.status;
+            document.getElementById('viewStudentJoined').textContent = student.joined;
+            
+            // Set avatar
+            const avatarImg = document.getElementById('viewStudentAvatar');
+            const defaultAvatar = document.getElementById('viewStudentDefaultAvatar');
+            
+            if (student.avatar) {
+                avatarImg.src = student.avatar;
+                avatarImg.style.display = 'block';
+                defaultAvatar.style.display = 'none';
+            } else {
+                avatarImg.style.display = 'none';
+                defaultAvatar.style.display = 'flex';
+                defaultAvatar.textContent = student.name.charAt(0);
+                defaultAvatar.style.backgroundColor = badge.color;
+            }
+            
+            currentEditId = id;
+            document.getElementById('viewStudentModal').classList.add('active');
+        }
+
+        // Close view student modal
+        function closeViewStudentModal() {
+            document.getElementById('viewStudentModal').classList.remove('active');
+        }
+
+        // Edit student from view modal
+        function editStudentFromView() {
+            closeViewStudentModal();
+            setTimeout(() => editStudent(currentEditId), 300);
+        }
+
+        // Edit student
+        function editStudent(id) {
+            const student = studentcom.find(s => s.id === id);
+            if (!student) return;
+            
+            currentEditId = id;
+            profilePictureData = student.avatar || null;
+            document.getElementById('modalTitle').textContent = 'Edit Student';
+            document.getElementById('saveStudentBtn').innerHTML = '<i class="fas fa-save"></i> Update Student';
+            
+            // Fill form
+            document.getElementById('studentName').value = student.name;
+            document.getElementById('studentContact').value = student.contact;
+            document.getElementById('studentExpertise').value = student.expertise;
+            document.getElementById('studentPoints').value = student.points;
+            
+            // Set profile picture
+            const preview = document.getElementById('profilePreview');
+            const placeholder = document.getElementById('profilePlaceholder');
+            
+            if (student.avatar) {
+                preview.src = student.avatar;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                preview.style.display = 'none';
+                placeholder.style.display = 'flex';
+                placeholder.innerHTML = '<i class="fas fa-user-edit"></i>';
+            }
+            
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        // Delete student
+        function deleteStudent(id) {
+            if (!confirm('Are you sure you want to delete this student?')) {
+                return;
+            }
+            
+            const studentIndex = studentcom.findIndex(s => s.id === id);
+            if (studentIndex !== -1) {
+                const studentName = studentcom[studentIndex].name;
+                studentcom.splice(studentIndex, 1);
+                saveStudents();
+                updateStats();
+                renderStudentsTable();
+                showToast(`Student "${studentName}" deleted`, 'success');
+            }
+        }
+
+        // Download PDF
+        function downloadPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'pt', 'a4');
+                
+                // Title
+                doc.setFontSize(24);
+                doc.setTextColor(26, 31, 54);
+                doc.text('ScholarX Student Community', 40, 50);
+                
+                doc.setFontSize(16);
+                doc.setTextColor(100, 116, 139);
+                doc.text('Students Report', 40, 80);
+                
+                // Date
+                doc.setFontSize(12);
+                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 40, 100);
+                
+                // Stats
+                doc.setFontSize(14);
+                doc.setTextColor(26, 31, 54);
+                doc.text('Statistics:', 40, 130);
+                
+                // Stats in boxes
+                let yPos = 160;
+                const boxWidth = 120;
+                const boxHeight = 60;
+                const gap = 20;
+                
+                // Total Students
+                doc.setFillColor(74, 111, 255);
+                doc.roundedRect(40, yPos, boxWidth, boxHeight, 5, 5, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                doc.text(studentcom.length.toString(), 40 + boxWidth/2, yPos + 25, { align: 'center' });
+                doc.setFontSize(10);
+                doc.text('Total Students', 40 + boxWidth/2, yPos + 45, { align: 'center' });
+                
+                // Total Points
+                doc.setFillColor(0, 201, 183);
+                doc.roundedRect(40 + boxWidth + gap, yPos, boxWidth, boxHeight, 5, 5, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(20);
+                const totalPoints = studentcom.reduce((sum, s) => sum + s.points, 0);
+                doc.text(totalPoints.toLocaleString(), 40 + boxWidth + gap + boxWidth/2, yPos + 25, { align: 'center' });
+                doc.setFontSize(10);
+                doc.text('Total Points', 40 + boxWidth + gap + boxWidth/2, yPos + 45, { align: 'center' });
+                
+                // Students Table Header
+                yPos = 250;
+                doc.setFontSize(16);
+                doc.setTextColor(26, 31, 54);
+                doc.text('Students List:', 40, yPos);
+                
+                // Table headers
+                yPos += 30;
+                doc.setFontSize(10);
+                doc.setTextColor(100, 116, 139);
+                doc.text('No.', 40, yPos);
+                doc.text('Name', 70, yPos);
+                doc.text('Contact', 180, yPos);
+                doc.text('Expertise', 280, yPos);
+                doc.text('Points', 380, yPos);
+                doc.text('Badge', 430, yPos);
+                doc.text('Status', 500, yPos);
+                
+                // Horizontal line
+                doc.setDrawColor(226, 232, 240);
+                doc.line(40, yPos + 5, 550, yPos + 5);
+                
+                // Students data
+                yPos += 20;
+                doc.setFontSize(9);
+                
+                studentcom.forEach((student, index) => {
+                    if (yPos > 750) {
+                        doc.addPage();
+                        yPos = 40;
+                    }
+                    
+                    const badge = getBadgeFromPoints(student.points);
+                    
+                    // Number
+                    doc.setTextColor(26, 31, 54);
+                    doc.text((index + 1).toString(), 40, yPos);
+                    
+                    // Name (truncated)
+                    const name = student.name.length > 20 ? student.name.substring(0, 20) + '...' : student.name;
+                    doc.text(name, 70, yPos);
+                    
+                    // Contact (truncated)
+                    const contact = student.contact.length > 25 ? student.contact.substring(0, 25) + '...' : student.contact;
+                    doc.setTextColor(74, 111, 255);
+                    doc.text(contact, 180, yPos);
+                    
+                    // Expertise (truncated)
+                    const expertise = student.expertise.length > 25 ? student.expertise.substring(0, 25) + '...' : student.expertise;
+                    doc.setTextColor(100, 116, 139);
+                    doc.text(expertise, 280, yPos);
+                    
+                    // Points
+                    doc.setTextColor(26, 31, 54);
+                    doc.text(student.points.toString(), 380, yPos);
+                    
+                    // Badge
+                    doc.setTextColor(99, 102, 241);
+                    doc.text(badge.name, 430, yPos);
+                    
+                    // Status
+                    const statusColor = student.status === 'Active' ? [16, 185, 129] : [239, 68, 68];
+                    doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
+                    doc.text(student.status, 500, yPos);
+                    
+                    yPos += 20;
+                    
+                    // Separator line
+                    if (index < studentcom.length - 1) {
+                        doc.setDrawColor(226, 232, 240);
+                        doc.line(40, yPos - 10, 550, yPos - 10);
+                    }
+                });
+                
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.setTextColor(100, 116, 139);
+                    doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 20, { align: 'center' });
+                    doc.text('© ScholarX Student Community', doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+                }
+                
+                // Save the PDF
+                doc.save(`ScholarX_Students_${new Date().toISOString().split('T')[0]}.pdf`);
+                
+                showToast('PDF downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showToast('Error generating PDF', 'error');
+            }
+        }
+
+        // Setup keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Escape to close modals
+                if (e.key === 'Escape') {
+                    if (document.getElementById('studentModal').classList.contains('active')) {
+                        closeStudentModal();
+                    }
+                    if (document.getElementById('viewStudentModal').classList.contains('active')) {
+                        closeViewStudentModal();
+                    }
+                    closeMobileSidebar();
+                }
+                
+                // Ctrl/Cmd + F to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+                
+                // Ctrl/Cmd + N to add new student
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                    e.preventDefault();
+                    openAddStudentModal();
+                }
+            });
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
+                sessionStorage.clear();
+                showToast('Logged out successfully', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set icon based on type
+            if (type === 'success') {
+                toast.querySelector('i').className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                toast.querySelector('i').className = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                toast.querySelector('i').className = 'fas fa-exclamation-triangle';
+            }
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
