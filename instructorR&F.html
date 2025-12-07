@@ -1,0 +1,3179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ScholarX Instructor - Rating & Feedback</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1A1F36;
+            --primary-dark: #1A1F36;
+            --secondary: #1A1F36;
+            --accent: #00C9B7;
+            --light: #F8FAFC;
+            --gray-light: #E2E8F0;
+            --gray: #94A3B8;
+            --gray-dark: #64748B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --header-height: 70px;
+            --bottom-nav-height: 70px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 8px -5px rgba(0, 0, 0, 0.04);
+            --radius: 16px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #F8FAFC;
+            color: #334155;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: var(--bottom-nav-height);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Top Header - EXACT COPY FROM DASHBOARD */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background: linear-gradient(180deg, var(--secondary) 0%, #0F172A 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .app-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .instructor-badge {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-top: 2px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-pic-small {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            cursor: pointer;
+        }
+
+        /* Mobile Sidebar - EXACT COPY FROM DASHBOARD */
+        .mobile-sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background: linear-gradient(180deg, var(--secondary) 0%, #0F172A 100%);
+            color: white;
+            z-index: 999;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .mobile-nav {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .mobile-nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            padding-left: 25px;
+        }
+
+        .mobile-nav-item.active {
+            background: rgba(0, 201, 183, 0.15);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        .mobile-nav-item i {
+            margin-right: 15px;
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .mobile-sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 20px;
+        }
+
+        .user-profile-mobile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-pic-mobile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+
+        .profile-info-mobile h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 3px;
+        }
+
+        .profile-info-mobile p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .logout-btn-mobile {
+            width: 100%;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .logout-btn-mobile:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Overlay - EXACT COPY FROM DASHBOARD */
+        .sidebar-overlay {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content - ADAPTED FROM DASHBOARD */
+        .main-content {
+            padding: calc(var(--header-height) + 20px) 20px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Login Section - MOBILE FRIENDLY */
+        .login-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            animation: fadeIn 0.4s ease-out;
+            margin-bottom: 25px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary) 0%, #6C8BFF 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 16px rgba(74, 111, 255, 0.2);
+        }
+
+        .login-section h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .login-section p {
+            color: var(--gray-dark);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+        }
+
+        select.form-control {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+        }
+
+        .error-message, .success-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            border-left: 4px solid var(--danger);
+            text-align: left;
+        }
+
+        .success-message {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        /* Remember Me Checkbox */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            color: var(--gray-dark);
+            font-size: 14px;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .remember-me input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 15px;
+            width: 100%;
+            margin-top: 0;
+        }
+
+        @media (min-width: 768px) {
+            .btn {
+                width: auto;
+            }
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(74, 111, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74, 111, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--gray-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light);
+            border-color: var(--gray);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-logout-system {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-logout-system:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Current System Info */
+        .current-system-info {
+            background: linear-gradient(135deg, var(--primary) 0%, #3A5BDF 100%);
+            color: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        @media (min-width: 640px) {
+            .current-system-info {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .system-info-content h3 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .system-info-content p {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .instructor-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 15px;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .page-title p {
+            color: var(--gray-dark);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .header-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 640px) {
+            .header-actions {
+                flex-direction: row;
+                margin-top: 0;
+            }
+        }
+
+        /* Feature Cards Grid - MOBILE OPTIMIZED */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .feature-card.recommendations {
+            border-top: 4px solid var(--success);
+        }
+
+        .feature-card.feedbacks {
+            border-top: 4px solid var(--primary);
+        }
+
+        .feature-card.multiple-choice {
+            border-top: 4px solid var(--warning);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .feature-icon.recommendations {
+            background: linear-gradient(135deg, var(--success) 0%, #22C55E 100%);
+        }
+
+        .feature-icon.feedbacks {
+            background: linear-gradient(135deg, var(--primary) 0%, #6C8BFF 100%);
+        }
+
+        .feature-icon.multiple-choice {
+            background: linear-gradient(135deg, var(--warning) 0%, #FBBF24 100%);
+        }
+
+        .feature-content h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .feature-content p {
+            color: var(--gray-dark);
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .notification-badge {
+            background: var(--danger);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .feature-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--gray-dark);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        /* Stats Cards - MOBILE OPTIMIZED */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-container {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+        }
+
+        .stat-icon.system {
+            background: linear-gradient(135deg, var(--primary) 0%, #6C8BFF 100%);
+        }
+
+        .stat-icon.session {
+            background: linear-gradient(135deg, var(--accent) 0%, #2CE0D0 100%);
+        }
+
+        .stat-icon.points {
+            background: linear-gradient(135deg, var(--success) 0%, #22C55E 100%);
+        }
+
+        .stat-icon.feedback {
+            background: linear-gradient(135deg, var(--warning) 0%, #FBBF24 100%);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray-dark);
+            font-weight: 500;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .chart-header {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 640px) {
+            .chart-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 0;
+            }
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+            margin-top: 20px;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .student-name {
+            font-weight: 500;
+            color: var(--secondary);
+        }
+
+        .rating-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Sessions Grid - MOBILE OPTIMIZED */
+        .sessions-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .sessions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .sessions-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .session-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .session-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .session-card.locked::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gray);
+        }
+
+        .session-card.unlocked::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--success);
+        }
+
+        .session-header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        @media (min-width: 480px) {
+            .session-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 0;
+            }
+        }
+
+        .session-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+
+        .session-number {
+            font-size: 12px;
+            color: var(--gray-dark);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .session-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .session-badge.locked {
+            background: rgba(100, 116, 139, 0.1);
+            color: var(--gray-dark);
+        }
+
+        .session-badge.unlocked {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .session-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .session-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
+            border-radius: var(--radius-xs);
+            flex: 1;
+            min-width: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-unlock {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-lock {
+            background: var(--gray);
+            color: white;
+        }
+
+        .btn-view {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-unlock:disabled,
+        .btn-lock:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Modal - MOBILE FRIENDLY */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @media (min-width: 768px) {
+            .modal-content {
+                max-width: 600px;
+            }
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Recommendations Modal Content */
+        .recommendation-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border-radius: var(--radius-sm);
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .recommendation-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-header i {
+            color: var(--success);
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .recommendation-header h3 {
+            font-size: 16px;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .issue-stats {
+            background: white;
+            border-radius: var(--radius-xs);
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--gray-light);
+        }
+
+        .issue-stats h4 {
+            font-size: 14px;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .recommendations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--gray-light);
+        }
+
+        .recommendation-item i {
+            color: var(--success);
+            margin-top: 2px;
+            font-size: 14px;
+        }
+
+        /* Feedback Summary */
+        .feedback-summary {
+            margin-bottom: 20px;
+        }
+
+        .feedback-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-btn {
+            padding: 8px 12px;
+            background: var(--light);
+            border: 1px solid var(--gray-light);
+            border-radius: 20px;
+            color: var(--gray-dark);
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .filter-btn:hover:not(.active) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .feedback-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 480px) {
+            .feedback-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .feedback-stat-item {
+            background: var(--light);
+            border-radius: var(--radius-xs);
+            padding: 12px;
+            text-align: center;
+        }
+
+        .feedback-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .feedback-stat-label {
+            font-size: 11px;
+            color: var(--gray-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Feedback Items */
+        .feedback-item {
+            background: white;
+            border-radius: var(--radius-xs);
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+        }
+
+        .feedback-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .feedback-session {
+            font-size: 11px;
+            color: var(--primary);
+            background: rgba(74, 111, 255, 0.1);
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        /* Multiple Choice Ranking */
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .ranking-position {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .ranking-position.gold {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        }
+
+        .ranking-position.silver {
+            background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+        }
+
+        .ranking-position.bronze {
+            background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+        }
+
+        .ranking-content {
+            flex: 1;
+        }
+
+        .ranking-bar {
+            height: 20px;
+            background: var(--gray-light);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .ranking-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+
+        .ranking-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+
+        @media (min-width: 480px) {
+            .ranking-info {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+
+        /* Session Tabs */
+        .session-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .session-tab {
+            padding: 10px 15px;
+            background: var(--light);
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-xs);
+            color: var(--gray-dark);
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .session-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Toast Notification - EXACT COPY FROM DASHBOARD */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--bottom-nav-height) + 20px);
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--secondary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            opacity: 0;
+            transition: transform 0.4s, opacity 0.4s;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Bottom Navigation - EXACT COPY FROM DASHBOARD */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--bottom-nav-height);
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            padding: 0 10px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--gray);
+            padding: 10px 5px;
+            border-radius: var(--radius-xs);
+            transition: var(--transition);
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .nav-tab:hover {
+            background: var(--light);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            background: rgba(74, 111, 255, 0.08);
+        }
+
+        .nav-tab i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-tab span {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-tab.active i {
+            color: var(--primary);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Hide on desktop */
+        @media (min-width: 1024px) {
+            .header, .mobile-sidebar, .bottom-nav {
+                display: none;
+            }
+            
+            body {
+                padding-bottom: 0;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header - EXACT COPY FROM DASHBOARD -->
+    <header class="header">
+        <div class="header-left">
+            <img src="logo.png" alt="ScholarX Logo" class="app-logo" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Crect%20width=%22100%22%20height=%22100%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3ESX%3C/text%3E%3C/svg%3E'">
+            <div>
+                <div class="app-name">ScholarX</div>
+                <div class="instructor-badge">Rating & Feedback</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img id="profilePictureMobile" src="default-instructor.png" alt="Profile" class="profile-pic-small" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ccircle%20cx=%2250%22%20cy=%2250%22%20r=%2245%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3EI%3C/text%3E%3C/svg%3E'">
+        </div>
+    </header>
+
+    <!-- Mobile Sidebar - EXACT COPY FROM DASHBOARD -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <nav class="mobile-nav">
+            <a href="instructordash.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="instructorbox.html" class="mobile-nav-item">
+                <i class="fas fa-lightbulb"></i>
+                <span>Suggestion Box</span>
+            </a>
+            <a href="instructorR&F.html" class="mobile-nav-item active">
+                <i class="fas fa-star"></i>
+                <span>Rating & Feedback</span>
+            </a>
+            <a href="instructorLH.html" class="mobile-nav-item">
+                <i class="fas fa-book-open"></i>
+                <span>Learning Hub</span>
+            </a>
+            <a href="settingI.html" class="mobile-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        <div class="mobile-sidebar-footer">
+            <div class="user-profile-mobile">
+                <img id="profilePictureMobileLarge" src="default-instructor.png" alt="Profile" class="profile-pic-mobile" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ccircle%20cx=%2250%22%20cy=%2250%22%20r=%2245%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3EI%3C/text%3E%3C/svg%3E'">
+                <div class="profile-info-mobile">
+                    <h4 id="instructorNameMobile">Instructor</h4>
+                    <p id="instructorRoleMobile">Rating & Feedback</p>
+                </div>
+            </div>
+            <button class="logout-btn-mobile" onclick="logoutInstructor()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Login Interface -->
+        <div id="loginInterface">
+            <div class="login-section">
+                <div class="welcome-card">
+                    <div class="welcome-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h2>Welcome to ScholarX Instructor Portal</h2>
+                    <p>Please select your rating system and enter your instructor passcode to continue</p>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Rating System *</label>
+                    <select id="systemSelect" class="form-control">
+                        <option value="">-- Select a System --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Instructor Passcode *</label>
+                    <input type="password" id="codeInput" class="form-control" placeholder="Enter your instructor passcode">
+                    <small style="color: var(--gray); display: block; margin-top: 6px; font-size: 12px;">
+                        <i class="fas fa-info-circle"></i> Your instructor passcode was provided by your administrator
+                    </small>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Keep me logged in to this system</label>
+                </div>
+
+                <button class="btn btn-primary" onclick="loginInstructor()">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Access System</span>
+                </button>
+
+                <div style="text-align: center; margin-top: 15px; color: var(--gray); font-size: 13px;">
+                    <p>Need help? Contact your administrator</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Management Interface -->
+        <div id="sessionManagement" style="display: none;">
+            <!-- Current System Info -->
+            <div class="current-system-info">
+                <div class="system-info-content">
+                    <h3 id="currentSystemTitle">System Name</h3>
+                    <p id="currentCourseName">Course Name</p>
+                    <div class="instructor-info">
+                        <i class="fas fa-user-tie"></i>
+                        <span id="currentInstructorName">Instructor Name</span>
+                    </div>
+                </div>
+                <button class="btn btn-logout-system" onclick="logoutCurrentSystem()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Exit System</span>
+                </button>
+            </div>
+
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Rating & Feedback Dashboard</h1>
+                    <p>Manage sessions and analyze student feedback</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="openFeedbackModal()">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analytics</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feature Buttons Grid -->
+            <div class="features-grid" id="featuresGrid">
+                <!-- Features populated by JavaScript -->
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-container" id="statsContainer">
+                <!-- Stats populated by JavaScript -->
+            </div>
+
+            <!-- Ratings Overview with Line Graphs -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Student Rating Trends</h3>
+                    <select id="chartFilter" class="form-control" style="width: 100%;" onchange="updateChart()">
+                        <option value="all">All Sessions</option>
+                        <option value="last5">Last 5 Sessions</option>
+                        <option value="last3">Last 3 Sessions</option>
+                    </select>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="ratingsChart"></canvas>
+                </div>
+                <div class="chart-legend" id="chartLegend">
+                    <!-- Legend populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Sessions Grid -->
+            <div style="margin-bottom: 20px;">
+                <h2 style="font-size: 20px; color: var(--secondary); margin-bottom: 8px;">Course Sessions</h2>
+                <p style="color: var(--gray-dark); font-size: 14px;">Manage session access for students</p>
+            </div>
+
+            <div class="sessions-grid" id="sessionsContainer">
+                <!-- Sessions populated by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation - EXACT COPY FROM DASHBOARD -->
+    <nav class="bottom-nav">
+        <a href="instructordash.html" class="nav-tab">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="instructorbox.html" class="nav-tab">
+            <i class="fas fa-lightbulb"></i>
+            <span>Suggestions</span>
+        </a>
+        <a href="instructorR&F.html" class="nav-tab active">
+            <i class="fas fa-star"></i>
+            <span>Ratings</span>
+        </a>
+        <a href="instructorLH.html" class="nav-tab">
+            <i class="fas fa-book-open"></i>
+            <span>Hub</span>
+        </a>
+        <a href="settingI.html" class="nav-tab">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- Modals -->
+    <div id="recommendationsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-lightbulb"></i>
+                    Recommendations
+                    <span class="notification-badge" id="recommendationsCount">0</span>
+                </h2>
+                <button class="close-modal" onclick="closeRecommendationsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="recommendationsContent">
+                <!-- Recommendations content -->
+            </div>
+        </div>
+    </div>
+
+    <div id="feedbacksModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-comments"></i>
+                    All Feedback
+                    <span class="notification-badge" id="feedbacksCount">0</span>
+                </h2>
+                <button class="close-modal" onclick="closeFeedbacksModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="feedbacksContent">
+                <!-- Feedbacks content -->
+            </div>
+        </div>
+    </div>
+
+    <div id="multipleChoiceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-poll"></i>
+                    Multiple Choice Rankings
+                </h2>
+                <button class="close-modal" onclick="closeMultipleChoiceModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="multipleChoiceContent">
+                <!-- Multiple choice content -->
+            </div>
+        </div>
+    </div>
+
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Feedback Analytics</h2>
+                <button class="close-modal" onclick="closeFeedbackModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="session-tabs" id="sessionTabs">
+                    <!-- Session tabs -->
+                </div>
+                <div id="feedbackContent">
+                    <!-- Feedback content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operation completed successfully!</span>
+    </div>
+
+    <script>
+        // Global variables
+        let ratingSystems = [];
+        let currentInstructor = null;
+        let currentSystemIndex = null;
+        let currentSessionIndex = 0;
+        let ratingsChart = null;
+        let userProfileData = {
+            name: '',
+            profilePic: 'default-instructor.png',
+            role: 'Instructor'
+        };
+
+        // Persistent sessions storage
+        const CURRENT_SESSION_KEY = 'instructorCurrentSession';
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load rating systems
+            ratingSystems = JSON.parse(localStorage.getItem('ratingSystems') || '[]');
+            
+            // Load user profile
+            loadUserProfile();
+            
+            // Populate system select
+            populateSystemSelect();
+            
+            // Setup mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeMobileSidebar);
+            
+            // Setup swipe to close sidebar
+            setupSwipeGestures();
+            
+            // Enter key to submit login form
+            document.getElementById('codeInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginInstructor();
+                }
+            });
+            
+            // Setup keyboard shortcuts
+            setupKeyboardShortcuts();
+            
+            // Check for persistent session on page load
+            checkPersistentSession();
+        });
+
+        // Mobile sidebar functions
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Setup swipe gestures for mobile
+        function setupSwipeGestures() {
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                const sidebar = document.getElementById('mobileSidebar');
+                
+                // Swipe left to close sidebar if open
+                if (sidebar.classList.contains('active') && touchStartX - touchEndX > 100) {
+                    closeMobileSidebar();
+                }
+            });
+        }
+
+        // Check for persistent session
+        function checkPersistentSession() {
+            const currentSession = JSON.parse(localStorage.getItem(CURRENT_SESSION_KEY) || 'null');
+            
+            if (currentSession) {
+                const now = new Date();
+                const sessionDate = new Date(currentSession.loginTime);
+                const hoursDiff = (now - sessionDate) / (1000 * 60 * 60);
+                
+                if (hoursDiff < 24 && currentSession.rememberMe) {
+                    autoLoginFromSession(currentSession);
+                } else {
+                    showLoginInterface();
+                    localStorage.removeItem(CURRENT_SESSION_KEY);
+                }
+            } else {
+                showLoginInterface();
+            }
+        }
+
+        // Auto-login from stored session
+        function autoLoginFromSession(sessionData) {
+            const systemIndex = sessionData.systemIndex;
+            const instructorCode = sessionData.instructorCode;
+            
+            if (ratingSystems[systemIndex]) {
+                const system = ratingSystems[systemIndex];
+                const instructor = system.instructors.find(i => i.code.toLowerCase() === instructorCode.toLowerCase());
+                
+                if (instructor) {
+                    currentInstructor = instructor;
+                    currentSystemIndex = parseInt(systemIndex);
+                    
+                    sessionStorage.setItem('instructorSession', JSON.stringify({
+                        systemIndex: currentSystemIndex,
+                        instructor: instructor
+                    }));
+                    
+                    userProfileData.name = instructor.name;
+                    userProfileData.role = `${system.courseName} Instructor`;
+                    updateProfileSidebar();
+                    saveUserProfile();
+                    
+                    showSessionManagement(system);
+                    updateCurrentSystemInfo(system, instructor);
+                    
+                    showToast(`Welcome back, ${instructor.name}!`, 'success');
+                } else {
+                    showLoginInterface();
+                    localStorage.removeItem(CURRENT_SESSION_KEY);
+                }
+            } else {
+                showLoginInterface();
+                localStorage.removeItem(CURRENT_SESSION_KEY);
+            }
+        }
+
+        // Show login interface
+        function showLoginInterface() {
+            document.getElementById('loginInterface').style.display = 'block';
+            document.getElementById('sessionManagement').style.display = 'none';
+            
+            document.getElementById('codeInput').value = '';
+            document.getElementById('rememberMe').checked = false;
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Update current system info display
+        function updateCurrentSystemInfo(system, instructor) {
+            document.getElementById('currentSystemTitle').textContent = system.systemName;
+            document.getElementById('currentCourseName').textContent = system.courseName;
+            document.getElementById('currentInstructorName').textContent = instructor.name;
+        }
+
+        // Load user profile
+        function loadUserProfile() {
+            const savedProfile = JSON.parse(localStorage.getItem('instructorProfile') || 'null');
+            
+            if (savedProfile) {
+                userProfileData = savedProfile;
+            } else {
+                const sessionData = JSON.parse(sessionStorage.getItem('instructorSession') || 'null');
+                if (sessionData && sessionData.instructor) {
+                    userProfileData.name = sessionData.instructor.name;
+                    userProfileData.role = 'Instructor';
+                }
+            }
+            
+            updateProfileSidebar();
+        }
+
+        // Update profile in sidebar
+        function updateProfileSidebar() {
+            document.getElementById('instructorNameMobile').textContent = userProfileData.name || 'Instructor';
+            document.getElementById('instructorRoleMobile').textContent = userProfileData.role || 'Rating & Feedback';
+            
+            if (userProfileData.profilePic) {
+                document.getElementById('profilePictureMobile').src = userProfileData.profilePic;
+                document.getElementById('profilePictureMobileLarge').src = userProfileData.profilePic;
+            }
+        }
+
+        // Navigation functions
+        function navigateToDashboard() { 
+            saveUserProfile();
+            window.location.href = 'instructordash.html'; 
+        }
+        
+        function navigateToRatingManagement() { 
+            // Already on this page
+        }
+
+        function navigateToSuggestionBox() { 
+            saveUserProfile();
+            window.location.href = 'instructorbox.html'; 
+        }
+        
+        function navigateToLearningHub() { 
+            saveUserProfile();
+            window.location.href = 'instructorLH.html'; 
+        }
+        
+        function navigateToSettings() { 
+            saveUserProfile();
+            window.location.href = 'settingI.html'; 
+        }
+
+        // Save user profile
+        function saveUserProfile() {
+            if (currentInstructor) {
+                userProfileData.name = currentInstructor.name;
+                userProfileData.role = `${ratingSystems[currentSystemIndex].courseName} Instructor`;
+                
+                const dashboardProfile = JSON.parse(localStorage.getItem('dashboardProfile') || 'null');
+                const settingsProfile = JSON.parse(localStorage.getItem('settingsProfile') || 'null');
+                
+                if (settingsProfile && settingsProfile.profilePic) {
+                    userProfileData.profilePic = settingsProfile.profilePic;
+                } else if (dashboardProfile && dashboardProfile.profilePic) {
+                    userProfileData.profilePic = dashboardProfile.profilePic;
+                }
+                
+                localStorage.setItem('instructorProfile', JSON.stringify(userProfileData));
+            }
+        }
+
+        // Populate system select dropdown
+        function populateSystemSelect() {
+            const select = document.getElementById('systemSelect');
+            select.innerHTML = '<option value="">-- Select a System --</option>';
+            
+            ratingSystems.forEach((system, index) => {
+                if (system.instructors && system.instructors.length > 0) {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `${system.systemName} - ${system.courseName}`;
+                    select.appendChild(option);
+                }
+            });
+            
+            if (ratingSystems.length === 0) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "No rating systems available";
+                option.disabled = true;
+                select.appendChild(option);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set icon
+            const icon = toast.querySelector('i');
+            icon.className = type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Login instructor
+        function loginInstructor() {
+            const systemIndex = document.getElementById('systemSelect').value;
+            const code = document.getElementById('codeInput').value.trim();
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            if (!systemIndex) {
+                errorMsg.textContent = 'Please select a rating system';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            if (!code) {
+                errorMsg.textContent = 'Please enter your instructor passcode';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            const system = ratingSystems[systemIndex];
+            const instructor = system.instructors.find(i => i.code.toLowerCase() === code.toLowerCase());
+            
+            if (!instructor) {
+                errorMsg.textContent = 'Invalid instructor passcode for this system. Please check your code and try again.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            currentInstructor = instructor;
+            currentSystemIndex = parseInt(systemIndex);
+            
+            sessionStorage.setItem('instructorSession', JSON.stringify({
+                systemIndex: currentSystemIndex,
+                instructor: instructor
+            }));
+            
+            if (rememberMe) {
+                localStorage.setItem(CURRENT_SESSION_KEY, JSON.stringify({
+                    systemIndex: currentSystemIndex,
+                    instructorCode: instructor.code,
+                    loginTime: new Date().toISOString(),
+                    rememberMe: true
+                }));
+            } else {
+                localStorage.removeItem(CURRENT_SESSION_KEY);
+            }
+            
+            userProfileData.name = instructor.name;
+            userProfileData.role = `${system.courseName} Instructor`;
+            updateProfileSidebar();
+            saveUserProfile();
+            
+            showSessionManagement(system);
+            updateCurrentSystemInfo(system, instructor);
+            
+            successMsg.textContent = `Welcome back, ${instructor.name}!`;
+            successMsg.style.display = 'block';
+            
+            document.getElementById('codeInput').value = '';
+            
+            showToast(`Logged in as ${instructor.name}`, 'success');
+        }
+
+        // Show session management interface
+        function showSessionManagement(system) {
+            document.getElementById('loginInterface').style.display = 'none';
+            document.getElementById('sessionManagement').style.display = 'block';
+            
+            loadSessionManagement(system);
+            initializeRatingsChart(system);
+        }
+
+        // Logout from current system only
+        function logoutCurrentSystem() {
+            if (confirm('Are you sure you want to logout from this system?')) {
+                currentInstructor = null;
+                currentSystemIndex = null;
+                
+                localStorage.removeItem(CURRENT_SESSION_KEY);
+                
+                showLoginInterface();
+                
+                if (ratingsChart) {
+                    ratingsChart.destroy();
+                    ratingsChart = null;
+                }
+                
+                showToast('Logged out from system successfully', 'success');
+            }
+        }
+
+        // Load session management data
+        function loadSessionManagement(system) {
+            const totalSessions = system.sessions.length;
+            const status = getSessionStatus(currentSystemIndex);
+            const unlockedSessions = Object.values(status).filter(v => v === true).length;
+            
+            const allFeedback = JSON.parse(localStorage.getItem('studentFeedback') || '[]');
+            const systemFeedback = allFeedback.filter(f => f.systemName === system.systemName);
+            const totalPoints = systemFeedback.reduce((sum, fb) => sum + (fb.rating || 0), 0);
+            const feedbackCount = systemFeedback.length;
+            
+            // Update stats
+            document.getElementById('statsContainer').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">${totalSessions}</div>
+                            <div class="stat-label">Total Sessions</div>
+                        </div>
+                        <div class="stat-icon session">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">${unlockedSessions}</div>
+                            <div class="stat-label">Unlocked Sessions</div>
+                        </div>
+                        <div class="stat-icon system">
+                            <i class="fas fa-lock-open"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">${totalPoints}</div>
+                            <div class="stat-label">Total Points</div>
+                        </div>
+                        <div class="stat-icon points">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value">${feedbackCount}</div>
+                            <div class="stat-label">Feedback Received</div>
+                        </div>
+                        <div class="stat-icon feedback">
+                            <i class="fas fa-comment-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Load feature buttons with counts
+            loadFeatureButtons(system);
+            
+            renderSessions(system);
+        }
+
+        // Load feature buttons with notification counts
+        function loadFeatureButtons(system) {
+            const allFeedback = JSON.parse(localStorage.getItem('studentFeedback') || '[]');
+            const systemFeedback = allFeedback.filter(f => f.systemName === system.systemName);
+            
+            // Get multiple choice feedback
+            const mcFeedback = systemFeedback.filter(f => f.multipleChoice && f.multipleChoice.length > 0);
+            
+            // Analyze for recommendations
+            const recommendations = analyzeForRecommendations(system);
+            const recommendationsCount = recommendations.length;
+            
+            // Calculate feedbacks count (exclude today's feedback to show only "new")
+            const today = new Date().toDateString();
+            const newFeedbacks = systemFeedback.filter(f => {
+                const feedbackDate = new Date(f.submittedAt).toDateString();
+                return feedbackDate !== today;
+            }).length;
+            
+            document.getElementById('featuresGrid').innerHTML = `
+                <div class="feature-card recommendations" onclick="openRecommendationsModal()">
+                    <div class="feature-icon recommendations">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>
+                            Recommendations
+                            ${recommendationsCount > 0 ? `<span class="notification-badge">${recommendationsCount}</span>` : ''}
+                        </h3>
+                        <p>Get intelligent recommendations based on student feedback patterns</p>
+                        <div class="feature-stats">
+                            <span><i class="fas fa-chart-line"></i> ${recommendationsCount} suggestions</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card feedbacks" onclick="openFeedbacksModal()">
+                    <div class="feature-icon feedbacks">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>
+                            All Feedbacks
+                            ${newFeedbacks > 0 ? `<span class="notification-badge">${newFeedbacks}</span>` : ''}
+                        </h3>
+                        <p>View all student feedback across all sessions</p>
+                        <div class="feature-stats">
+                            <span><i class="fas fa-comment"></i> ${systemFeedback.length} total</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card multiple-choice" onclick="openMultipleChoiceModal()">
+                    <div class="feature-icon multiple-choice">
+                        <i class="fas fa-poll"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Multiple Choice Rankings</h3>
+                        <p>See which options are selected most often by students</p>
+                        <div class="feature-stats">
+                            <span><i class="fas fa-list"></i> ${mcFeedback.length} responses</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update counts in modals
+            document.getElementById('recommendationsCount').textContent = recommendationsCount;
+            document.getElementById('feedbacksCount').textContent = newFeedbacks;
+        }
+
+        // Analyze feedback for recommendations
+        function analyzeForRecommendations(system) {
+            const allFeedback = JSON.parse(localStorage.getItem('studentFeedback') || '[]');
+            const systemFeedback = allFeedback.filter(f => f.systemName === system.systemName);
+            
+            if (systemFeedback.length === 0) return [];
+            
+            // Analyze multiple choice patterns
+            const mcOptions = {};
+            systemFeedback.forEach(feedback => {
+                if (feedback.multipleChoice && feedback.multipleChoice.length > 0) {
+                    feedback.multipleChoice.forEach(option => {
+                        mcOptions[option] = (mcOptions[option] || 0) + 1;
+                    });
+                }
+            });
+            
+            // Find most common issues
+            const sortedOptions = Object.entries(mcOptions).sort((a, b) => b[1] - a[1]);
+            
+            const recommendations = [];
+            
+            if (sortedOptions.length > 0) {
+                const [topOption, topCount] = sortedOptions[0];
+                const totalResponses = systemFeedback.filter(f => f.multipleChoice && f.multipleChoice.length > 0).length;
+                const percentage = Math.round((topCount / totalResponses) * 100);
+                
+                // Generate recommendations based on top issue
+                if (topOption.includes('difficult') || topOption.includes('hard') || topOption.includes('challenging')) {
+                    recommendations.push({
+                        issue: topOption,
+                        count: topCount,
+                        percentage: percentage,
+                        suggestions: [
+                            "Consider breaking down complex topics into smaller segments",
+                            "Provide additional examples for difficult concepts",
+                            "Schedule extra review sessions for struggling students"
+                        ]
+                    });
+                } else if (topOption.includes('pace') || topOption.includes('fast') || topOption.includes('slow')) {
+                    recommendations.push({
+                        issue: topOption,
+                        count: topCount,
+                        percentage: percentage,
+                        suggestions: [
+                            "Adjust lecture pace based on weekly feedback",
+                            "Implement quick comprehension checks during sessions",
+                            "Record sessions for students to review at their own pace"
+                        ]
+                    });
+                } else if (topOption.includes('explanation') || topOption.includes('clear') || topOption.includes('understand')) {
+                    recommendations.push({
+                        issue: topOption,
+                        count: topCount,
+                        percentage: percentage,
+                        suggestions: [
+                            "Use more visual aids and real-world examples",
+                            "Encourage questions during sessions",
+                            "Provide concise summaries of key points"
+                        ]
+                    });
+                } else {
+                    recommendations.push({
+                        issue: topOption,
+                        count: topCount,
+                        percentage: percentage,
+                        suggestions: [
+                            "Review session materials and adjust based on feedback",
+                            "Consider different teaching approaches",
+                            "Discuss this issue with students directly"
+                        ]
+                    });
+                }
+            }
+            
+            return recommendations;
+        }
+
+        // Get session status from localStorage
+        function getSessionStatus(systemIndex) {
+            const sessionStatus = JSON.parse(localStorage.getItem('sessionStatus') || '{}');
+            return sessionStatus[systemIndex] || {};
+        }
+
+        // Save session status to localStorage
+        function saveSessionStatus(systemIndex, sessionIndex, isUnlocked) {
+            const sessionStatus = JSON.parse(localStorage.getItem('sessionStatus') || '{}');
+            if (!sessionStatus[systemIndex]) sessionStatus[systemIndex] = {};
+            sessionStatus[systemIndex][sessionIndex] = isUnlocked;
+            localStorage.setItem('sessionStatus', JSON.stringify(sessionStatus));
+        }
+
+        // Initialize ratings line chart
+        function initializeRatingsChart(system) {
+            const ctx = document.getElementById('ratingsChart').getContext('2d');
+            
+            const allFeedback = JSON.parse(localStorage.getItem('studentFeedback') || '[]');
+            const systemFeedback = allFeedback.filter(f => f.systemName === system.systemName);
+            
+            const studentRatings = {};
+            
+            systemFeedback.forEach(feedback => {
+                if (!studentRatings[feedback.studentReg]) {
+                    studentRatings[feedback.studentReg] = {};
+                }
+                studentRatings[feedback.studentReg][feedback.sessionIndex] = feedback.rating;
+            });
+            
+            const sessions = system.sessions;
+            const students = Object.keys(studentRatings);
+            const colors = generateColors(students.length);
+            
+            const datasets = students.map((student, index) => {
+                const dataPoints = sessions.map((session, sessionIndex) => {
+                    return studentRatings[student][sessionIndex] || null;
+                });
+                
+                return {
+                    label: student,
+                    data: dataPoints,
+                    borderColor: colors[index],
+                    backgroundColor: colors[index] + '20',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                };
+            });
+            
+            if (ratingsChart) {
+                ratingsChart.destroy();
+            }
+            
+            ratingsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sessions.map((s, i) => `S${i+1}`),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y}/5`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: 'Rating (1-5)'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sessions'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            updateChartLegend(students, colors, studentRatings, sessions);
+        }
+
+        // Generate distinct colors for charts
+        function generateColors(count) {
+            const colors = [
+                '#4A6FFF', '#00C9B7', '#10B981', '#F59E0B', '#EF4444',
+                '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316'
+            ];
+            
+            if (count <= colors.length) {
+                return colors.slice(0, count);
+            }
+            
+            const additionalColors = [];
+            for (let i = colors.length; i < count; i++) {
+                const hue = (i * 137.508) % 360;
+                additionalColors.push(`hsl(${hue}, 70%, 60%)`);
+            }
+            
+            return colors.concat(additionalColors);
+        }
+
+        // Update chart legend
+        function updateChartLegend(students, colors, studentRatings, sessions) {
+            const legendContainer = document.getElementById('chartLegend');
+            legendContainer.innerHTML = '';
+            
+            const filter = document.getElementById('chartFilter').value;
+            let displaySessions = sessions;
+            
+            if (filter === 'last5' && sessions.length > 5) {
+                displaySessions = sessions.slice(-5);
+            } else if (filter === 'last3' && sessions.length > 3) {
+                displaySessions = sessions.slice(-3);
+            }
+            
+            students.forEach((student, index) => {
+                const ratings = Object.values(studentRatings[student] || {});
+                const avgRating = ratings.length > 0 
+                    ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
+                    : 'N/A';
+                
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${colors[index]}"></div>
+                    <span class="student-name">${student}</span>
+                    <span class="rating-value">Avg: ${avgRating}/5</span>
+                `;
+                legendContainer.appendChild(legendItem);
+            });
+            
+            if (students.length === 0) {
+                legendContainer.innerHTML = `
+                    <div style="text-align: center; width: 100%; color: var(--gray);">
+                        <i class="fas fa-chart-line"></i>
+                        <p>No student ratings available yet</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update chart based on filter
+        function updateChart() {
+            if (currentSystemIndex !== null && ratingsChart) {
+                const system = ratingSystems[currentSystemIndex];
+                initializeRatingsChart(system);
+            }
+        }
+
+        // Render sessions grid
+        function renderSessions(system) {
+            const container = document.getElementById('sessionsContainer');
+            const status = getSessionStatus(currentSystemIndex);
+            
+            if (system.sessions.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1;">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-calendar-times"></i>
+                            </div>
+                            <h3 style="color: var(--primary); margin-bottom: 10px;">No Sessions Available</h3>
+                            <p>This system doesn't have any sessions configured yet.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            system.sessions.forEach((session, index) => {
+                const isUnlocked = status[index] === true;
+                const sessionFeedback = getSessionFeedback(system.systemName, index);
+                const avgRating = sessionFeedback.length > 0 
+                    ? (sessionFeedback.reduce((sum, fb) => sum + fb.rating, 0) / sessionFeedback.length).toFixed(1)
+                    : 0;
+                
+                const displaySession = session.length > 30 ? session.substring(0, 30) + '...' : session;
+                
+                const card = document.createElement('div');
+                card.className = `session-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+                card.innerHTML = `
+                    <div class="session-header">
+                        <div>
+                            <h3 title="${session}">${displaySession}</h3>
+                            <div class="session-number">
+                                <i class="fas fa-hashtag"></i>
+                                <span>Session ${index + 1}</span>
+                            </div>
+                        </div>
+                        <div class="session-badge ${isUnlocked ? 'unlocked' : 'locked'}" title="${isUnlocked ? 'Session is open for students' : 'Session is closed'}">
+                            ${isUnlocked ? '<i class="fas fa-lock-open"></i>' : '<i class="fas fa-lock"></i>'}
+                        </div>
+                    </div>
+                    
+                    <div class="session-details">
+                        <div class="detail-item">
+                            <div class="detail-value">${sessionFeedback.length}</div>
+                            <div class="detail-label">Feedbacks</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value">${avgRating}</div>
+                            <div class="detail-label">Avg Rating</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-value">${isUnlocked ? 'Open' : 'Closed'}</div>
+                            <div class="detail-label">Status</div>
+                        </div>
+                    </div>
+                    
+                    <div class="session-actions">
+                        <button class="btn btn-sm btn-unlock" onclick="toggleSession(${index}, true)" ${isUnlocked ? 'disabled' : ''} title="Unlock session">
+                            <i class="fas fa-lock-open"></i>
+                            Unlock
+                        </button>
+                        <button class="btn btn-sm btn-lock" onclick="toggleSession(${index}, false)" ${!isUnlocked ? 'disabled' : ''} title="Lock session">
+                            <i class="fas fa-lock"></i>
+                            Lock
+                        </button>
+                        <button class="btn btn-sm btn-view" onclick="viewSessionFeedback(${index})" title="View feedback">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Get feedback for a specific session
+        function getSessionFeedback(systemName, sessionIndex) {
+            const allFeedback = JSON.parse(localStorage.getItem('studentFeedback') || '[]');
+            return allFeedback.filter(f => f.systemName === systemName && f.sessionIndex === sessionIndex);
+        }
+
+        // Toggle session lock/unlock
+        function toggleSession(sessionIndex, unlock) {
+            const system = ratingSystems[currentSystemIndex];
+            const sessionName = system.sessions[sessionIndex];
+            
+            saveSessionStatus(currentSystemIndex, sessionIndex, unlock);
+            showToast(`Session "${sessionName}" ${unlock ? 'unlocked' : 'locked'} successfully`, 'success');
+            loadSessionManagement(system);
+        }
+
+        // View session feedback
+        function viewSessionFeedback(sessionIndex) {
+            currentSessionIndex = sessionIndex;
+            openFeedbackModal();
+        }
+
+        // Open recommendations modal
+        function openRecommendationsModal() {
+            const system = ratingSystems[currentSystemIndex];
+            const recommendations = analyzeForRecommendations(system);
+            
+            const content = document.getElementById('recommendationsContent');
+            
+            if (recommendations.length === 0) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 48px; color: var(--gray-light); margin-bottom: 20px;">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3 style="color: var(--secondary); margin-bottom: 10px;">No Recommendations Yet</h3>
+                        <p style="color: var(--gray-dark); margin-bottom: 20px;">Once students start providing feedback, you'll see intelligent recommendations here.</p>
+                        <button class="btn btn-secondary" onclick="closeRecommendationsModal()">
+                            <i class="fas fa-times"></i>
+                            Close
+                        </button>
+                    </div>
+                `;
+            } else {
+                let html = `
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="font-size: 18px; color: var(--secondary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-chart-pie"></i>
+                            Feedback Analysis Summary
+                        </h3>
+                        <div style="background: var(--light); border-radius: var(--radius); padding: 15px; margin-bottom: 20px;">
+                            <p style="color: var(--secondary); font-size: 14px; margin-bottom: 10px;">
+                                Based on ${recommendations.reduce((sum, r) => sum + r.count, 0)} feedback responses, here are the key areas for improvement:
+                            </p>
+                        </div>
+                    </div>
+                `;
+                
+                recommendations.forEach((rec, index) => {
+                    html += `
+                        <div class="recommendation-card">
+                            <div class="recommendation-header">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <h3>Issue ${index + 1}: ${rec.issue}</h3>
+                            </div>
+                            
+                            <div class="issue-stats">
+                                <h4>Feedback Statistics</h4>
+                                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                    <div>
+                                        <div style="font-size: 24px; font-weight: 700; color: var(--primary);">${rec.count}</div>
+                                        <div style="font-size: 12px; color: var(--gray-dark);">Students mentioned</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 24px; font-weight: 700; color: var(--accent);">${rec.percentage}%</div>
+                                        <div style="font-size: 12px; color: var(--gray-dark);">Of feedback responses</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 style="font-size: 16px; color: var(--secondary); margin-bottom: 12px;">Recommended Actions</h4>
+                                <div class="recommendations-list">
+                                    ${rec.suggestions.map(suggestion => `
+                                        <div class="recommendation-item">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span style="font-size: 14px; color: var(--secondary);">${suggestion}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                content.innerHTML = html;
+            }
+            
+            document.getElementById('recommendationsModal').classList.add('active');
+        }
+
+        // Close recommendations modal
+        function closeRecommendationsModal() {
+            document.getElementById('recommendationsModal').classList.remove('active');
+        }
+
+        // Open feedbacks modal
+        function openFeedbacksModal() {
+            const system = ratingSystems[currentSystemIndex];
+            const allFeedback = JSON.parse(localStorage.getItem('studentFeedback') || '[]');
+            const systemFeedback = allFeedback.filter(f => f.systemName === system.systemName);
+            
+            const content = document.getElementById('feedbacksContent');
+            
+            if (systemFeedback.length === 0) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 48px; color: var(--gray-light); margin-bottom: 20px;">
+                            <i class="fas fa-comment-slash"></i>
+                        </div>
+                        <h3 style="color: var(--secondary); margin-bottom: 10px;">No Feedback Yet</h3>
+                        <p style="color: var(--gray-dark); margin-bottom: 20px;">Student feedback will appear here once sessions are unlocked and students submit their ratings.</p>
+                        <button class="btn btn-secondary" onclick="closeFeedbacksModal()">
+                            <i class="fas fa-times"></i>
+                            Close
+                        </button>
+                    </div>
+                `;
+            } else {
+                let html = `
+                    <div class="feedback-summary">
+                        <div class="feedback-stats">
+                            <div class="feedback-stat-item">
+                                <div class="feedback-stat-value">${systemFeedback.length}</div>
+                                <div class="feedback-stat-label">Total Feedback</div>
+                            </div>
+                            <div class="feedback-stat-item">
+                                <div class="feedback-stat-value">${new Set(systemFeedback.map(f => f.studentReg)).size}</div>
+                                <div class="feedback-stat-label">Unique Students</div>
+                            </div>
+                            <div class="feedback-stat-item">
+                                <div class="feedback-stat-value">${system.sessions.length}</div>
+                                <div class="feedback-stat-label">Sessions</div>
+                            </div>
+                            <div class="feedback-stat-item">
+                                <div class="feedback-stat-value">${(systemFeedback.reduce((sum, f) => sum + f.rating, 0) / systemFeedback.length).toFixed(1)}</div>
+                                <div class="feedback-stat-label">Avg Rating</div>
+                            </div>
+                        </div>
+                        
+                        <div class="feedback-filters">
+                            <button class="filter-btn active" onclick="filterFeedback('all')">All</button>
+                            <button class="filter-btn" onclick="filterFeedback('positive')">Positive (4-5 stars)</button>
+                            <button class="filter-btn" onclick="filterFeedback('neutral')">Neutral (3 stars)</button>
+                            <button class="filter-btn" onclick="filterFeedback('negative')">Needs Improvement (1-2 stars)</button>
+                            <button class="filter-btn" onclick="filterFeedback('recent')">Most Recent</button>
+                        </div>
+                    </div>
+                    
+                    <div id="feedbackItems" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                `;
+                
+                // Sort feedback by date (newest first)
+                const sortedFeedback = [...systemFeedback].sort((a, b) => 
+                    new Date(b.submittedAt) - new Date(a.submittedAt)
+                );
+                
+                sortedFeedback.forEach(feedback => {
+                    const sessionName = system.sessions[feedback.sessionIndex] || `Session ${feedback.sessionIndex + 1}`;
+                    const stars = '★'.repeat(feedback.rating) + '☆'.repeat(5 - feedback.rating);
+                    const date = new Date(feedback.submittedAt).toLocaleString();
+                    
+                    let ratingClass = 'neutral';
+                    if (feedback.rating >= 4) ratingClass = 'positive';
+                    else if (feedback.rating <= 2) ratingClass = 'negative';
+                    
+                    html += `
+                        <div class="feedback-item" data-rating="${ratingClass}">
+                            <div class="feedback-session">${sessionName}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                <div>
+                                    <div style="font-weight: 600; color: var(--secondary); margin-bottom: 4px;">${feedback.studentReg}</div>
+                                    <div style="font-size: 12px; color: var(--gray-dark);">
+                                        <i class="far fa-clock"></i> ${date}
+                                    </div>
+                                </div>
+                                <div style="color: #FF9529; font-weight: 700;">
+                                    ${stars} (${feedback.rating}/5)
+                                </div>
+                            </div>
+                            <div style="color: var(--secondary); font-size: 14px; line-height: 1.5;">
+                                ${feedback.feedback || '<em style="color: var(--gray);">No written feedback provided</em>'}
+                            </div>
+                            ${feedback.multipleChoice && feedback.multipleChoice.length > 0 ? `
+                                <div style="margin-top: 10px;">
+                                    <div style="font-size: 12px; color: var(--gray-dark); margin-bottom: 5px;">Multiple Choice Selections:</div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        ${feedback.multipleChoice.map(option => `
+                                            <span style="background: var(--primary); color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px;">
+                                                ${option}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+                content.innerHTML = html;
+            }
+            
+            document.getElementById('feedbacksModal').classList.add('active');
+        }
+
+        // Filter feedback
+        function filterFeedback(type) {
+            const items = document.querySelectorAll('#feedbackItems .feedback-item');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            items.forEach(item => {
+                const rating = item.getAttribute('data-rating');
+                const isVisible = 
+                    type === 'all' ||
+                    (type === 'positive' && rating === 'positive') ||
+                    (type === 'neutral' && rating === 'neutral') ||
+                    (type === 'negative' && rating === 'negative') ||
+                    (type === 'recent' && item.querySelector('[data-recent]'));
+                
+                item.style.display = isVisible ? 'block' : 'none';
+            });
+        }
+
+        // Close feedbacks modal
+        function closeFeedbacksModal() {
+            document.getElementById('feedbacksModal').classList.remove('active');
+        }
+
+        // Open multiple choice modal
+        function openMultipleChoiceModal() {
+            const system = ratingSystems[currentSystemIndex];
+            const allFeedback = JSON.parse(localStorage.getItem('studentFeedback') || '[]');
+            const systemFeedback = allFeedback.filter(f => f.systemName === system.systemName);
+            
+            const content = document.getElementById('multipleChoiceContent');
+            
+            // Get all multiple choice options with counts
+            const mcOptions = {};
+            systemFeedback.forEach(feedback => {
+                if (feedback.multipleChoice && feedback.multipleChoice.length > 0) {
+                    feedback.multipleChoice.forEach(option => {
+                        mcOptions[option] = (mcOptions[option] || 0) + 1;
+                    });
+                }
+            });
+            
+            if (Object.keys(mcOptions).length === 0) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 48px; color: var(--gray-light); margin-bottom: 20px;">
+                            <i class="fas fa-poll"></i>
+                        </div>
+                        <h3 style="color: var(--secondary); margin-bottom: 10px;">No Multiple Choice Data</h3>
+                        <p style="color: var(--gray-dark); margin-bottom: 20px;">Multiple choice selections will appear here once students start using this feature.</p>
+                        <button class="btn btn-secondary" onclick="closeMultipleChoiceModal()">
+                            <i class="fas fa-times"></i>
+                            Close
+                        </button>
+                    </div>
+                `;
+            } else {
+                // Sort options by count
+                const sortedOptions = Object.entries(mcOptions).sort((a, b) => b[1] - a[1]);
+                const totalSelections = sortedOptions.reduce((sum, [option, count]) => sum + count, 0);
+                const maxCount = sortedOptions[0][1];
+                
+                let html = `
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="font-size: 18px; color: var(--secondary); margin-bottom: 10px;">
+                            <i class="fas fa-chart-bar"></i>
+                            Multiple Choice Feedback Analysis
+                        </h3>
+                        <p style="color: var(--gray-dark); font-size: 14px; margin-bottom: 15px;">
+                            Based on ${totalSelections} selections from ${systemFeedback.filter(f => f.multipleChoice && f.multipleChoice.length > 0).length} students
+                        </p>
+                    </div>
+                    
+                    <div class="ranking-chart">
+                `;
+                
+                sortedOptions.forEach(([option, count], index) => {
+                    const percentage = Math.round((count / totalSelections) * 100);
+                    const widthPercentage = (count / maxCount) * 100;
+                    
+                    let positionClass = '';
+                    if (index === 0) positionClass = 'gold';
+                    else if (index === 1) positionClass = 'silver';
+                    else if (index === 2) positionClass = 'bronze';
+                    
+                    html += `
+                        <div class="ranking-item">
+                            <div class="ranking-position ${positionClass}">${index + 1}</div>
+                            <div class="ranking-content">
+                                <div class="ranking-bar">
+                                    <div class="ranking-fill" style="width: ${widthPercentage}%; background-color: ${getRankingColor(index)};"></div>
+                                </div>
+                                <div class="ranking-info">
+                                    <span>${option}</span>
+                                    <span>${count} (${percentage}%)</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+                
+                content.innerHTML = html;
+            }
+            
+            document.getElementById('multipleChoiceModal').classList.add('active');
+        }
+
+        // Get ranking color based on position
+        function getRankingColor(index) {
+            const colors = [
+                '#4A6FFF', // Blue for 1st
+                '#00C9B7', // Teal for 2nd
+                '#10B981', // Green for 3rd
+                '#F59E0B', // Orange for 4th
+                '#EF4444'  // Red for 5th
+            ];
+            return colors[Math.min(index, colors.length - 1)];
+        }
+
+        // Close multiple choice modal
+        function closeMultipleChoiceModal() {
+            document.getElementById('multipleChoiceModal').classList.remove('active');
+        }
+
+        // Open feedback modal
+        function openFeedbackModal() {
+            const system = ratingSystems[currentSystemIndex];
+            
+            const tabsContainer = document.getElementById('sessionTabs');
+            tabsContainer.innerHTML = '';
+            
+            system.sessions.forEach((session, index) => {
+                const tab = document.createElement('button');
+                tab.className = `session-tab ${index === currentSessionIndex ? 'active' : ''}`;
+                const tabText = session.length > 15 ? session.substring(0, 15) + '...' : session;
+                tab.textContent = `${index + 1}. ${tabText}`;
+                tab.title = session;
+                tab.onclick = () => {
+                    currentSessionIndex = index;
+                    loadFeedbackForSession(index);
+                    document.querySelectorAll('.session-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                };
+                tabsContainer.appendChild(tab);
+            });
+            
+            loadFeedbackForSession(currentSessionIndex);
+            document.getElementById('feedbackModal').classList.add('active');
+        }
+
+        // Load feedback for a specific session
+        function loadFeedbackForSession(sessionIndex) {
+            const system = ratingSystems[currentSystemIndex];
+            const feedback = getSessionFeedback(system.systemName, sessionIndex);
+            const replies = JSON.parse(localStorage.getItem('instructorReplies') || '{}');
+            
+            const content = document.getElementById('feedbackContent');
+            
+            if (feedback.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-comment-slash"></i>
+                        </div>
+                        <h3 style="color: var(--primary); margin-bottom: 10px;">No Feedback Yet</h3>
+                        <p>No students have submitted feedback for this session yet.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const totalPoints = feedback.reduce((sum, fb) => sum + fb.rating, 0);
+            const avgRating = (totalPoints / feedback.length).toFixed(1);
+            
+            let html = `
+                <div style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div style="background: var(--light); padding: 12px; border-radius: var(--radius-sm); min-width: 120px;">
+                        <div style="font-size: 11px; color: var(--gray); margin-bottom: 4px;">Total Feedback</div>
+                        <div style="font-size: 20px; font-weight: 700; color: var(--primary);">${feedback.length}</div>
+                    </div>
+                    <div style="background: var(--light); padding: 12px; border-radius: var(--radius-sm); min-width: 120px;">
+                        <div style="font-size: 11px; color: var(--gray); margin-bottom: 4px;">Average Rating</div>
+                        <div style="font-size: 20px; font-weight: 700; color: var(--accent);">${avgRating}/5.0</div>
+                    </div>
+                    <div style="background: var(--light); padding: 12px; border-radius: var(--radius-sm); min-width: 120px;">
+                        <div style="font-size: 11px; color: var(--gray); margin-bottom: 4px;">Total Points</div>
+                        <div style="font-size: 20px; font-weight: 700; color: var(--success);">${totalPoints}</div>
+                    </div>
+                </div>
+                
+                <div id="sessionFeedbackList">
+            `;
+            
+            feedback.forEach((fb, fbIndex) => {
+                const feedbackId = `${currentSystemIndex}-${sessionIndex}-${fb.studentReg}`;
+                const feedbackReplies = replies[feedbackId] || [];
+                
+                const stars = '★'.repeat(fb.rating) + '☆'.repeat(5 - fb.rating);
+                
+                html += `
+                    <div class="feedback-item">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: 600; color: var(--secondary); margin-bottom: 4px;">${fb.studentReg}</div>
+                                <div style="font-size: 12px; color: var(--gray-dark);">
+                                    <i class="far fa-clock"></i> ${new Date(fb.submittedAt).toLocaleString()}
+                                </div>
+                            </div>
+                            <div style="color: #FF9529; font-weight: 700;">
+                                ${stars} (${fb.rating}/5)
+                            </div>
+                        </div>
+                        <div style="color: var(--secondary); font-size: 14px; line-height: 1.5; margin-bottom: 10px;">
+                            ${fb.feedback || '<em style="color: var(--gray);">No written feedback provided</em>'}
+                        </div>
+                        
+                        ${feedbackReplies.length > 0 ? `
+                            <div style="margin-top: 10px;">
+                                <div style="font-size: 13px; color: var(--secondary); margin-bottom: 8px; font-weight: 600;">
+                                    <i class="fas fa-reply"></i> Instructor Replies (${feedbackReplies.length})
+                                </div>
+                        ` : ''}
+                        
+                        ${feedbackReplies.map(reply => `
+                            <div style="background: var(--light); border-radius: var(--radius-xs); padding: 10px; margin-bottom: 8px;">
+                                <div style="font-size: 12px; color: var(--primary); margin-bottom: 5px;">
+                                    <i class="fas fa-user-tie"></i> ${reply.instructorName || currentInstructor.name}
+                                </div>
+                                <div style="color: var(--secondary); font-size: 13px;">${reply.reply}</div>
+                                <div style="font-size: 11px; color: var(--gray-dark); margin-top: 5px;">
+                                    ${new Date(reply.repliedAt).toLocaleString()}
+                                </div>
+                            </div>
+                        `).join('')}
+                        
+                        ${feedbackReplies.length > 0 ? `</div>` : ''}
+                        
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-sm btn-primary" onclick="showReplyForm(${sessionIndex}, ${fbIndex}, '${fb.studentReg}')" style="padding: 6px 12px;">
+                                <i class="fas fa-reply"></i> Reply
+                            </button>
+                        </div>
+                        
+                        <div id="reply-form-${sessionIndex}-${fbIndex}" style="display: none; margin-top: 10px;">
+                            <textarea id="reply-text-${sessionIndex}-${fbIndex}" class="form-control" rows="3" placeholder="Type your reply to ${fb.studentReg}..."></textarea>
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <button class="btn btn-sm btn-primary" onclick="sendReply(${sessionIndex}, ${fbIndex}, '${fb.studentReg}')">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                                <button class="btn btn-sm btn-secondary" onclick="hideReplyForm(${sessionIndex}, ${fbIndex})">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            content.innerHTML = html;
+        }
+
+        // Show reply form
+        function showReplyForm(sessionIndex, fbIndex, studentReg) {
+            document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            const form = document.getElementById(`reply-form-${sessionIndex}-${fbIndex}`);
+            if (form) {
+                form.style.display = 'block';
+                form.querySelector('textarea').focus();
+            }
+        }
+
+        // Hide reply form
+        function hideReplyForm(sessionIndex, fbIndex) {
+            const form = document.getElementById(`reply-form-${sessionIndex}-${fbIndex}`);
+            if (form) {
+                form.style.display = 'none';
+                form.querySelector('textarea').value = '';
+            }
+        }
+
+        // Send reply to student feedback
+        function sendReply(sessionIndex, fbIndex, studentReg) {
+            const replyText = document.getElementById(`reply-text-${sessionIndex}-${fbIndex}`).value.trim();
+            
+            if (!replyText) {
+                showToast('Please enter a reply message', 'error');
+                return;
+            }
+            
+            const feedbackId = `${currentSystemIndex}-${sessionIndex}-${studentReg}`;
+            const replies = JSON.parse(localStorage.getItem('instructorReplies') || '{}');
+            
+            if (!replies[feedbackId]) replies[feedbackId] = [];
+            
+            replies[feedbackId].push({
+                instructorName: currentInstructor.name,
+                reply: replyText,
+                repliedAt: new Date().toISOString()
+            });
+            
+            localStorage.setItem('instructorReplies', JSON.stringify(replies));
+            
+            document.getElementById(`reply-text-${sessionIndex}-${fbIndex}`).value = '';
+            hideReplyForm(sessionIndex, fbIndex);
+            
+            loadFeedbackForSession(currentSessionIndex);
+            showToast('Reply sent successfully!', 'success');
+        }
+
+        // Close feedback modal
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal').classList.remove('active');
+        }
+
+        // Refresh data
+        function refreshData() {
+            if (currentSystemIndex !== null) {
+                const system = ratingSystems[currentSystemIndex];
+                loadSessionManagement(system);
+                initializeRatingsChart(system);
+                showToast('Data refreshed successfully', 'success');
+            }
+        }
+
+        // Complete logout (from sidebar)
+        function logoutInstructor() {
+            if (confirm('Are you sure you want to logout completely?')) {
+                currentInstructor = null;
+                currentSystemIndex = null;
+                sessionStorage.removeItem('instructorSession');
+                localStorage.removeItem(CURRENT_SESSION_KEY);
+                
+                document.getElementById('instructorNameMobile').textContent = 'Instructor';
+                document.getElementById('instructorRoleMobile').textContent = 'Rating & Feedback';
+                document.getElementById('profilePictureMobile').src = 'default-instructor.png';
+                document.getElementById('profilePictureMobileLarge').src = 'default-instructor.png';
+                
+                showLoginInterface();
+                
+                if (ratingsChart) {
+                    ratingsChart.destroy();
+                    ratingsChart = null;
+                }
+                
+                showToast('Logged out successfully', 'success');
+            }
+        }
+
+        // Setup keyboard shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (document.getElementById('recommendationsModal').classList.contains('active')) {
+                        closeRecommendationsModal();
+                    } else if (document.getElementById('feedbacksModal').classList.contains('active')) {
+                        closeFeedbacksModal();
+                    } else if (document.getElementById('multipleChoiceModal').classList.contains('active')) {
+                        closeMultipleChoiceModal();
+                    } else if (document.getElementById('feedbackModal').classList.contains('active')) {
+                        closeFeedbackModal();
+                    }
+                }
+                
+                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                    e.preventDefault();
+                    refreshData();
+                }
+                
+                if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                    e.preventDefault();
+                    logoutCurrentSystem();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

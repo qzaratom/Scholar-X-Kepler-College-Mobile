@@ -1,0 +1,2483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ScholarX Instructor - Learning Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #1A1F36;
+            --primary-dark: #1A1F36;
+            --secondary: #1A1F36;
+            --accent: #00C9B7;
+            --light: #F8FAFC;
+            --gray-light: #E2E8F0;
+            --gray: #94A3B8;
+            --gray-dark: #64748B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #17A2B8;
+            --student: #6366F1;
+            --beginner: #8B5CF6;
+            --amateur: #EC4899;
+            --semi-pro: #F59E0B;
+            --professional: #EF4444;
+            --worldclass: #10B981;
+            --legendary: #06B6D4;
+            --genius: #7C3AED;
+            --header-height: 70px;
+            --bottom-nav-height: 70px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 8px -5px rgba(0, 0, 0, 0.04);
+            --radius: 16px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #F8FAFC;
+            color: #334155;
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: var(--bottom-nav-height);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Top Header - EXACT COPY FROM DASHBOARD */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background: linear-gradient(180deg, var(--secondary) 0%, #0F172A 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .app-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .instructor-badge {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-top: 2px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-pic-small {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            cursor: pointer;
+        }
+
+        /* Mobile Sidebar - EXACT COPY FROM DASHBOARD */
+        .mobile-sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background: linear-gradient(180deg, var(--secondary) 0%, #0F172A 100%);
+            color: white;
+            z-index: 999;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .mobile-nav {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .mobile-nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            padding-left: 25px;
+        }
+
+        .mobile-nav-item.active {
+            background: rgba(0, 201, 183, 0.15);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        .mobile-nav-item i {
+            margin-right: 15px;
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .mobile-sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 20px;
+        }
+
+        .user-profile-mobile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-pic-mobile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+
+        .profile-info-mobile h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 3px;
+        }
+
+        .profile-info-mobile p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .logout-btn-mobile {
+            width: 100%;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+
+        .logout-btn-mobile:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Overlay - EXACT COPY FROM DASHBOARD */
+        .sidebar-overlay {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content - ADAPTED FROM DASHBOARD */
+        .main-content {
+            padding: calc(var(--header-height) + 20px) 20px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Hub Header - MOBILE FRIENDLY */
+        .hub-header {
+            margin-bottom: 25px;
+        }
+
+        .header-title h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            color: var(--gray-dark);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Search Bar - MOBILE OPTIMIZED */
+        .search-container {
+            position: relative;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .search-container {
+                width: 300px;
+                margin-top: 0;
+            }
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 45px 14px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* Stats Cards - MOBILE OPTIMIZED */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-cards {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-light);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            margin: 0 auto 15px;
+        }
+
+        .icon-students { background: linear-gradient(135deg, var(--primary), #3498DB); }
+        .icon-points { background: linear-gradient(135deg, var(--accent), #00C9B7); }
+        .icon-categories { background: linear-gradient(135deg, var(--success), #10B981); }
+        .icon-top { background: linear-gradient(135deg, var(--warning), #F59E0B); }
+
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: var(--gray-dark);
+            font-size: 14px;
+        }
+
+        /* Controls - MOBILE OPTIMIZED */
+        .controls-container {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        @media (min-width: 640px) {
+            .controls-container {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .filter-sort-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            .filter-sort-group {
+                flex-direction: row;
+                width: auto;
+            }
+        }
+
+        .sort-select, .filter-select, .expertise-select {
+            padding: 12px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            .sort-select, .filter-select, .expertise-select {
+                min-width: 200px;
+                width: auto;
+            }
+        }
+
+        /* Points Award Section - MOBILE OPTIMIZED */
+        .points-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .award-points-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .award-form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            align-items: end;
+        }
+
+        @media (min-width: 768px) {
+            .award-form {
+                grid-template-columns: 1fr 1fr auto;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: var(--transition);
+            background: white;
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 255, 0.1);
+        }
+
+        select.form-control {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+        }
+
+        /* Buttons - MATCHING DASHBOARD STYLE */
+        .btn {
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 15px;
+            width: 100%;
+            margin-top: 0;
+        }
+
+        @media (min-width: 768px) {
+            .btn {
+                width: auto;
+            }
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(74, 111, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(74, 111, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-success:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Expertise Section - MOBILE OPTIMIZED */
+        .expertise-section {
+            margin-bottom: 30px;
+        }
+
+        .expertise-display {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .expertise-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        @media (min-width: 640px) {
+            .expertise-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 0;
+            }
+        }
+
+        .selected-expertise {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .student-count {
+            background: var(--primary);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        /* Students Table Container - MOBILE SCROLLABLE */
+        .students-table-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        .table-header {
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Students Table - MOBILE SCROLLABLE */
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .students-table th {
+            text-align: left;
+            padding: 16px;
+            border-bottom: 2px solid var(--gray-light);
+            color: var(--gray-dark);
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .students-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--gray-light);
+            vertical-align: middle;
+        }
+
+        /* Student Profile - MOBILE FRIENDLY */
+        .student-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gray-light);
+        }
+
+        .default-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .student-info h4 {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .student-info p {
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        .badge-img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .points-display {
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Action Buttons - MOBILE FRIENDLY */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @media (min-width: 480px) {
+            .action-buttons {
+                flex-direction: row;
+            }
+        }
+
+        .award-points-btn, .book-appointment-btn {
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .award-points-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .award-points-btn:hover {
+            background: #219653;
+            transform: translateY(-2px);
+        }
+
+        .book-appointment-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .book-appointment-btn:hover {
+            background: #2980B9;
+            transform: translateY(-2px);
+        }
+
+        /* Ranking Section - MOBILE OPTIMIZED */
+        .ranking-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            background: var(--light);
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+
+        .ranking-item:hover {
+            background: var(--gray-light);
+            transform: translateY(-2px);
+        }
+
+        .rank {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .rank-1 .rank { color: gold; }
+        .rank-2 .rank { color: silver; }
+        .rank-3 .rank { color: #CD7F32; }
+
+        .ranking-student {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Modal - MOBILE FRIENDLY */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray);
+            color: white;
+        }
+
+        /* Appointment Modal Content - MOBILE OPTIMIZED */
+        .appointment-student-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        @media (min-width: 480px) {
+            .appointment-student-info {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .appointment-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+
+        .appointment-default-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 30px;
+            border: 3px solid var(--primary);
+        }
+
+        .appointment-details h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .appointment-details p {
+            margin-bottom: 5px;
+            color: var(--gray-dark);
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        @media (min-width: 480px) {
+            .time-slots {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .time-slots {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .time-slot {
+            padding: 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .time-slot:hover {
+            border-color: var(--primary);
+            background: rgba(74, 111, 255, 0.05);
+        }
+
+        .time-slot.selected {
+            border-color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Toast Notification - EXACT COPY FROM DASHBOARD */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--bottom-nav-height) + 20px);
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--secondary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            opacity: 0;
+            transition: transform 0.4s, opacity 0.4s;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Bottom Navigation - EXACT COPY FROM DASHBOARD */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--bottom-nav-height);
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            z-index: 999;
+            padding: 0 10px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--gray);
+            padding: 10px 5px;
+            border-radius: var(--radius-xs);
+            transition: var(--transition);
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .nav-tab:hover {
+            background: var(--light);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            background: rgba(74, 111, 255, 0.08);
+        }
+
+        .nav-tab i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-tab span {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-tab.active i {
+            color: var(--primary);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Hide on desktop */
+        @media (min-width: 1024px) {
+            .header, .mobile-sidebar, .bottom-nav {
+                display: none;
+            }
+            
+            body {
+                padding-bottom: 0;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Header - EXACT COPY FROM DASHBOARD -->
+    <header class="header">
+        <div class="header-left">
+            <img src="logo.png" alt="ScholarX Logo" class="app-logo" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Crect%20width=%22100%22%20height=%22100%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3ESX%3C/text%3E%3C/svg%3E'">
+            <div>
+                <div class="app-name">ScholarX</div>
+                <div class="instructor-badge">Learning Hub</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img id="profilePictureMobile" src="default-instructor.png" alt="Profile" class="profile-pic-small" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ccircle%20cx=%2250%22%20cy=%2250%22%20r=%2245%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3EI%3C/text%3E%3C/svg%3E'">
+        </div>
+    </header>
+
+    <!-- Mobile Sidebar - EXACT COPY FROM DASHBOARD -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <nav class="mobile-nav">
+            <a href="instructordash.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="instructorbox.html" class="mobile-nav-item">
+                <i class="fas fa-lightbulb"></i>
+                <span>Suggestion Box</span>
+            </a>
+            <a href="instructorR&F.html" class="mobile-nav-item">
+                <i class="fas fa-star"></i>
+                <span>Rating & Feedback</span>
+            </a>
+            <a href="instructorLH.html" class="mobile-nav-item active">
+                <i class="fas fa-book-open"></i>
+                <span>Learning Hub</span>
+            </a>
+            <a href="settingI.html" class="mobile-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        <div class="mobile-sidebar-footer">
+            <div class="user-profile-mobile">
+                <img id="profilePictureMobileLarge" src="default-instructor.png" alt="Profile" class="profile-pic-mobile" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22%3E%3Ccircle%20cx=%2250%22%20cy=%2250%22%20r=%2245%22%20fill=%22%234A6FFF%22/%3E%3Ctext%20x=%2250%22%20y=%2260%22%20font-family=%22Arial%22%20font-size=%2240%22%20fill=%22white%22%20text-anchor=%22middle%22%3EI%3C/text%3E%3C/svg%3E'">
+                <div class="profile-info-mobile">
+                    <h4 id="instructorNameMobile">Instructor</h4>
+                    <p id="instructorRoleMobile">Learning Hub</p>
+                </div>
+            </div>
+            <button class="logout-btn-mobile" onclick="logoutInstructor()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="hub-header">
+            <div class="header-title">
+                <h1>Instructor Learning Hub</h1>
+                <p>Manage students, award points, and track performance</p>
+            </div>
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search students by name or expertise...">
+                <button class="search-btn" onclick="searchStudents()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon icon-students">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalStudents">0</h3>
+                    <p>Total Students</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-points">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalPoints">0</h3>
+                    <p>Points Awarded</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-categories">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalCategories">0</h3>
+                    <p>Expertise Categories</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon icon-top">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="topStudent">-</h3>
+                    <p>Top Student</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-container">
+            <div class="filter-sort-group">
+                <select class="sort-select form-control" id="sortSelect" onchange="sortStudents()">
+                    <option value="name-asc">Sort by: Name (A-Z)</option>
+                    <option value="name-desc">Sort by: Name (Z-A)</option>
+                    <option value="points-desc">Sort by: Points (High to Low)</option>
+                    <option value="points-asc">Sort by: Points (Low to High)</option>
+                </select>
+                
+                <select class="filter-select form-control" id="filterSelect" onchange="filterStudents()">
+                    <option value="all">All Students</option>
+                    <option value="student">Student Only</option>
+                    <option value="beginner">Beginner Only</option>
+                    <option value="amateur">Amateur Only</option>
+                    <option value="semi-pro">Semi-Pro Only</option>
+                    <option value="professional">Professional Only</option>
+                    <option value="worldclass">World Class Only</option>
+                    <option value="legendary">Legendary Only</option>
+                    <option value="genius">Genius Only</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Points Award Section -->
+        <div class="points-section">
+            <h2 class="section-title">
+                <i class="fas fa-gift"></i>
+                Award Points to Students
+            </h2>
+            <div class="award-points-container">
+                <div class="award-form">
+                    <div class="form-group">
+                        <label class="form-label">Select Student</label>
+                        <select class="form-control" id="studentSelect">
+                            <option value="">Choose a student...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Points to Award</label>
+                        <input type="number" class="form-control" id="pointsInput" min="1" max="1000" value="10">
+                    </div>
+                    <button class="btn btn-success" onclick="awardPoints()">
+                        <i class="fas fa-gift"></i>
+                        Award Points
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expertise Section -->
+        <div class="expertise-section">
+            <h2 class="section-title">
+                <i class="fas fa-layer-group"></i>
+                Students by Expertise Category
+            </h2>
+            
+            <div class="controls-container">
+                <div class="filter-sort-group">
+                    <select class="expertise-select form-control" id="expertiseSelect" onchange="showExpertiseStudents()">
+                        <option value="">Select an expertise category...</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="expertiseDisplay" style="display: none;">
+                <div class="expertise-display">
+                    <div class="expertise-header">
+                        <div class="selected-expertise" id="selectedExpertise"></div>
+                        <div class="student-count" id="expertiseStudentCount">0 students</div>
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="students-table" id="expertiseStudentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Student</th>
+                                    <th>Points</th>
+                                    <th>Badge</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expertiseStudentsTableBody">
+                                <!-- Expertise-specific students will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="ranking-section" style="margin-top: 20px;">
+                    <h3 style="font-size: 18px; font-weight: 600; color: var(--primary); margin-bottom: 15px;">
+                        <i class="fas fa-trophy"></i> Top Performers in this Expertise
+                    </h3>
+                    <div id="expertiseRankingList">
+                        <!-- Expertise-specific ranking will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="students-table-container">
+            <div class="table-header">
+                <h2>All Available Tutors (Students)</h2>
+            </div>
+            
+            <table class="students-table" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Profile</th>
+                        <th>Student</th>
+                        <th>Contact Info</th>
+                        <th>Area of Expertise</th>
+                        <th>Points</th>
+                        <th>Badge</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                    <!-- Students will be loaded here -->
+                </tbody>
+            </table>
+            <div id="noStudentsMessage" style="text-align: center; padding: 40px; color: var(--gray); display: none;">
+                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px;"></i>
+                <h3 style="color: var(--primary); margin-bottom: 10px;">No Students Found</h3>
+                <p>Students will appear here when added in the Admin Hub.</p>
+            </div>
+        </div>
+
+        <!-- Overall Ranking Section -->
+        <div class="ranking-section">
+            <h2 class="section-title">
+                <i class="fas fa-trophy"></i>
+                Overall Student Rankings
+            </h2>
+            <div class="ranking-list" id="rankingList">
+                <!-- Overall rankings will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation - EXACT COPY FROM DASHBOARD -->
+    <nav class="bottom-nav">
+        <a href="instructordash.html" class="nav-tab">
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="instructorbox.html" class="nav-tab">
+            <i class="fas fa-lightbulb"></i>
+            <span>Suggestions</span>
+        </a>
+        <a href="instructorR&F.html" class="nav-tab">
+            <i class="fas fa-star"></i>
+            <span>Ratings</span>
+        </a>
+        <a href="instructorLH.html" class="nav-tab active">
+            <i class="fas fa-book-open"></i>
+            <span>Hub</span>
+        </a>
+        <a href="settingI.html" class="nav-tab">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <!-- Award Points Modal -->
+    <div id="awardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Award Points</h2>
+                <button class="close-modal" onclick="closeAwardModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Student</label>
+                    <div class="student-info" style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <div class="default-avatar" id="modalStudentAvatar">?</div>
+                        <div>
+                            <h4 id="modalStudentName"></h4>
+                            <p id="modalStudentExpertise"></p>
+                            <p>Current Points: <strong id="modalCurrentPoints"></strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Points to Award</label>
+                    <input type="number" class="form-control" id="modalPointsInput" min="1" max="1000" value="10">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Reason (Optional)</label>
+                    <textarea class="form-control" id="pointsReason" rows="3" placeholder="Enter reason for awarding points..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAwardModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-success" onclick="confirmAwardPoints()">
+                    <i class="fas fa-check"></i>
+                    Award Points
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Appointment Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Book Appointment with Tutor</h2>
+                <button class="close-modal" onclick="closeAppointmentModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="appointment-student-info" id="appointmentStudentInfo">
+                    <!-- Student info will be loaded here -->
+                </div>
+                
+                <h3 style="font-size: 18px; font-weight: 600; color: var(--primary); margin-bottom: 15px;">
+                    <i class="fas fa-clock"></i> Select Appointment Time
+                </h3>
+                
+                <div class="time-slots" id="timeSlots">
+                    <!-- Time slots will be loaded here -->
+                </div>
+                
+                <div class="form-group" style="margin-top: 25px;">
+                    <label class="form-label">Appointment Date</label>
+                    <input type="date" class="form-control" id="appointmentDate" min="">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Purpose of Appointment *</label>
+                    <textarea class="form-control" id="appointmentPurpose" rows="3" placeholder="Briefly describe what you want to discuss or learn..."></textarea>
+                </div>
+                
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Your Name *</label>
+                        <input type="text" class="form-control" id="bookerName" placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Your Email *</label>
+                        <input type="email" class="form-control" id="bookerEmail" placeholder="Enter your email address">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Additional Notes (Optional)</label>
+                    <textarea class="form-control" id="additionalNotes" rows="2" placeholder="Any additional information or requirements..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAppointmentModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick="confirmAppointment()">
+                    <i class="fas fa-calendar-check"></i>
+                    Book Appointment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i id="toastIcon" class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operation completed successfully!</span>
+    </div>
+
+    <script>
+        // Global variables
+        let studentcom = [];
+        let currentAwardStudentId = null;
+        let currentAppointmentStudentId = null;
+        let currentUser = null;
+        let currentExpertise = '';
+        let selectedTimeSlot = null;
+        
+        // Badge system configuration (same as admin hub)
+        const badges = [
+            { 
+                name: "Student", 
+                minPoints: 0, 
+                maxPoints: 499, 
+                image: "student.png",
+                nextLevel: 500
+            },
+            { 
+                name: "Beginner", 
+                minPoints: 500, 
+                maxPoints: 999, 
+                image: "beginner.png",
+                nextLevel: 1000
+            },
+            { 
+                name: "Amateur", 
+                minPoints: 1000, 
+                maxPoints: 1499, 
+                image: "amature.png",
+                nextLevel: 1500
+            },
+            { 
+                name: "Semi-Pro", 
+                minPoints: 1500, 
+                maxPoints: 1999, 
+                image: "semi-pro.png",
+                nextLevel: 2000
+            },
+            { 
+                name: "Professional", 
+                minPoints: 2000, 
+                maxPoints: 3999, 
+                image: "professional.png",
+                nextLevel: 4000
+            },
+            { 
+                name: "World Class", 
+                minPoints: 4000, 
+                maxPoints: 9999, 
+                image: "worldclass.png",
+                nextLevel: 10000
+            },
+            { 
+                name: "Legendary", 
+                minPoints: 10000, 
+                maxPoints: 49999, 
+                image: "legendary.png",
+                nextLevel: 50000
+            },
+            { 
+                name: "Genius", 
+                minPoints: 50000, 
+                maxPoints: 999999, 
+                image: "genius.png",
+                nextLevel: null
+            }
+        ];
+
+        // Time slots for appointments
+        const timeSlots = [
+            "09:00 AM", "10:00 AM", "11:00 AM", 
+            "12:00 PM", "01:00 PM", "02:00 PM", 
+            "03:00 PM", "04:00 PM", "05:00 PM"
+        ];
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup mobile menu toggle - USING DASHBOARD FUNCTIONS
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeMobileSidebar);
+            
+            // Setup swipe to close sidebar
+            setupSwipeGestures();
+            
+            // Load user data
+            loadUserData();
+            
+            // Load students from localStorage (same storage as admin hub)
+            loadStudents();
+            
+            // Search input event listener
+            document.getElementById('searchInput').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchStudents();
+                } else {
+                    searchStudents();
+                }
+            });
+            
+            // Set minimum date to today for appointment booking
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').min = today;
+            
+            // Setup keyboard shortcuts
+            setupKeyboardShortcuts();
+            
+            // Auto-refresh students every 5 seconds
+            setInterval(loadStudents, 5000);
+        });
+
+        // Mobile sidebar functions - EXACT COPY FROM DASHBOARD
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Setup swipe gestures for mobile - FROM DASHBOARD
+        function setupSwipeGestures() {
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                const sidebar = document.getElementById('mobileSidebar');
+                
+                // Swipe left to close sidebar if open
+                if (sidebar.classList.contains('active') && touchStartX - touchEndX > 100) {
+                    closeMobileSidebar();
+                }
+            });
+        }
+
+        // Load user data
+        function loadUserData() {
+            // Try to get user from various sources
+            const currentUserData = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            const instructorProfile = JSON.parse(localStorage.getItem('instructorProfile') || 'null');
+            
+            let userData = null;
+            
+            if (currentUserData) {
+                userData = currentUserData;
+            } else if (instructorProfile) {
+                userData = instructorProfile;
+            }
+            
+            // Update UI with user data
+            if (userData) {
+                document.getElementById('instructorNameMobile').textContent = userData.name || userData.fullName || 'Instructor';
+                document.getElementById('instructorRoleMobile').textContent = 'Learning Hub';
+                
+                // Update profile pictures
+                if (userData.profilePic) {
+                    document.getElementById('profilePictureMobile').src = userData.profilePic;
+                    document.getElementById('profilePictureMobileLarge').src = userData.profilePic;
+                }
+                
+                currentUser = userData;
+            }
+        }
+
+        // Load students from localStorage
+        function loadStudents() {
+            // Get studentcom array from localStorage
+            const storedStudents = JSON.parse(localStorage.getItem('studentcom') || '[]');
+            
+            studentcom = storedStudents;
+            
+            updateStats();
+            renderStudentsTable();
+            populateStudentSelect();
+            populateExpertiseSelect();
+            renderOverallRankings();
+            
+            // If an expertise is currently selected, update its display
+            if (currentExpertise) {
+                showExpertiseStudents();
+            }
+        }
+
+        // Get badge from points
+        function getBadgeFromPoints(points) {
+            for (let i = badges.length - 1; i >= 0; i--) {
+                if (points >= badges[i].minPoints) {
+                    return badges[i];
+                }
+            }
+            return badges[0];
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalStudents = studentcom.length;
+            const totalPoints = studentcom.reduce((sum, student) => sum + student.points, 0);
+            
+            // Count unique expertise categories from ACTUAL student data
+            const expertiseSet = new Set();
+            studentcom.forEach(student => {
+                if (student.expertise) {
+                    const categories = student.expertise.split(',').map(cat => cat.trim());
+                    categories.forEach(cat => {
+                        if (cat) expertiseSet.add(cat);
+                    });
+                }
+            });
+            const totalCategories = expertiseSet.size;
+            
+            // Find top student
+            let topStudent = '-';
+            if (studentcom.length > 0) {
+                const sorted = [...studentcom].sort((a, b) => b.points - a.points);
+                topStudent = sorted[0].name;
+            }
+            
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('totalPoints').textContent = totalPoints.toLocaleString();
+            document.getElementById('totalCategories').textContent = totalCategories;
+            document.getElementById('topStudent').textContent = topStudent;
+        }
+
+        // Render students table
+        function renderStudentsTable(filteredStudents = null) {
+            const displayStudents = filteredStudents || studentcom;
+            const tableBody = document.getElementById('studentsTableBody');
+            const noStudentsMessage = document.getElementById('noStudentsMessage');
+            
+            if (displayStudents.length === 0) {
+                tableBody.innerHTML = '';
+                document.getElementById('studentsTable').style.display = 'none';
+                noStudentsMessage.style.display = 'block';
+                return;
+            }
+            
+            noStudentsMessage.style.display = 'none';
+            document.getElementById('studentsTable').style.display = 'table';
+            
+            tableBody.innerHTML = displayStudents.map((student, index) => {
+                const badge = getBadgeFromPoints(student.points);
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>
+                            <div class="student-profile">
+                                ${student.avatar ? 
+                                    `<img src="${student.avatar}" alt="${student.name}" class="student-avatar">` :
+                                    `<div class="default-avatar">${student.name.charAt(0)}</div>`
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="student-info">
+                                <h4>${student.name}</h4>
+                                <p>ID: S${student.id.toString().padStart(3, '0')}</p>
+                            </div>
+                        </td>
+                        <td>${student.contact}</td>
+                        <td>${student.expertise}</td>
+                        <td>
+                            <div class="points-display">
+                                <i class="fas fa-star"></i>
+                                ${student.points}
+                            </div>
+                        </td>
+                        <td>
+                            <img src="${badge.image}" alt="${badge.name}" class="badge-img" title="${badge.name}">
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="award-points-btn" onclick="openAwardModal(${student.id})">
+                                    <i class="fas fa-gift"></i>
+                                    Award Points
+                                </button>
+                                <button class="book-appointment-btn" onclick="openAppointmentModal(${student.id})">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Book
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Populate student select dropdown
+        function populateStudentSelect() {
+            const select = document.getElementById('studentSelect');
+            select.innerHTML = '<option value="">Choose a student...</option>';
+            
+            studentcom.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = `${student.name} (${student.points} points)`;
+                select.appendChild(option);
+            });
+        }
+
+        // Populate expertise select dropdown ONLY from existing student data
+        function populateExpertiseSelect() {
+            const select = document.getElementById('expertiseSelect');
+            const currentValue = select.value;
+            
+            // Get all unique expertise categories FROM ACTUAL STUDENT DATA
+            const expertiseSet = new Set();
+            studentcom.forEach(student => {
+                if (student.expertise) {
+                    const categories = student.expertise.split(',').map(cat => cat.trim());
+                    categories.forEach(cat => {
+                        if (cat) expertiseSet.add(cat);
+                    });
+                }
+            });
+            
+            const expertiseArray = Array.from(expertiseSet).sort();
+            
+            // Clear and rebuild dropdown
+            select.innerHTML = '<option value="">Select an expertise category...</option>';
+            
+            if (expertiseArray.length === 0) {
+                select.innerHTML += '<option value="" disabled>No expertise categories found</option>';
+                return;
+            }
+            
+            expertiseArray.forEach(expertise => {
+                const option = document.createElement('option');
+                option.value = expertise;
+                option.textContent = expertise;
+                select.appendChild(option);
+            });
+            
+            // Restore previous selection if it still exists
+            if (currentValue && expertiseArray.includes(currentValue)) {
+                select.value = currentValue;
+            } else if (currentExpertise && expertiseArray.includes(currentExpertise)) {
+                select.value = currentExpertise;
+            }
+        }
+
+        // Show students by selected expertise
+        function showExpertiseStudents() {
+            const expertise = document.getElementById('expertiseSelect').value;
+            currentExpertise = expertise;
+            
+            const expertiseDisplay = document.getElementById('expertiseDisplay');
+            
+            if (!expertise) {
+                expertiseDisplay.style.display = 'none';
+                return;
+            }
+            
+            // Get students with this expertise
+            const expertiseStudents = studentcom.filter(student => {
+                if (!student.expertise) return false;
+                const categories = student.expertise.split(',').map(cat => cat.trim());
+                return categories.includes(expertise);
+            }).sort((a, b) => b.points - a.points); // Sort by points descending
+            
+            // Update display
+            document.getElementById('selectedExpertise').textContent = expertise;
+            document.getElementById('expertiseStudentCount').textContent = `${expertiseStudents.length} student${expertiseStudents.length !== 1 ? 's' : ''}`;
+            
+            // Render expertise students table
+            const tableBody = document.getElementById('expertiseStudentsTableBody');
+            tableBody.innerHTML = expertiseStudents.map((student, index) => {
+                const badge = getBadgeFromPoints(student.points);
+                
+                return `
+                    <tr>
+                        <td><div class="rank">#${index + 1}</div></td>
+                        <td>
+                            <div class="student-profile">
+                                ${student.avatar ? 
+                                    `<img src="${student.avatar}" alt="${student.name}" class="student-avatar">` :
+                                    `<div class="default-avatar">${student.name.charAt(0)}</div>`
+                                }
+                                <div class="student-info">
+                                    <h4>${student.name}</h4>
+                                    <p>${student.contact}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="points-display">
+                                <i class="fas fa-star"></i>
+                                ${student.points}
+                            </div>
+                        </td>
+                        <td>
+                            <img src="${badge.image}" alt="${badge.name}" class="badge-img" title="${badge.name}">
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="award-points-btn" onclick="openAwardModal(${student.id})">
+                                    <i class="fas fa-gift"></i>
+                                    Award
+                                </button>
+                                <button class="book-appointment-btn" onclick="openAppointmentModal(${student.id})">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Book
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Render expertise ranking
+            const rankingList = document.getElementById('expertiseRankingList');
+            if (expertiseStudents.length === 0) {
+                rankingList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: var(--gray);">
+                        No students found in this expertise category.
+                    </div>
+                `;
+            } else {
+                rankingList.innerHTML = expertiseStudents.slice(0, 5).map((student, index) => {
+                    const rankClass = `rank-${index + 1}`;
+                    return `
+                        <div class="ranking-item ${rankClass}">
+                            <div class="rank">#${index + 1}</div>
+                            <div class="ranking-student">
+                                <div class="ranking-info">
+                                    <div class="ranking-name">${student.name}</div>
+                                    <div class="ranking-contact">${student.contact}</div>
+                                </div>
+                                <div class="ranking-points">
+                                    <i class="fas fa-star"></i>
+                                    ${student.points}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            expertiseDisplay.style.display = 'block';
+        }
+
+        // Render overall rankings
+        function renderOverallRankings() {
+            const rankingList = document.getElementById('rankingList');
+            
+            if (studentcom.length === 0) {
+                rankingList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--gray);">
+                        <i class="fas fa-trophy" style="font-size: 48px; margin-bottom: 15px;"></i>
+                        <h3 style="color: var(--primary); margin-bottom: 10px;">No Rankings Available</h3>
+                        <p>Award points to create student rankings.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort students by points
+            const sortedStudents = [...studentcom].sort((a, b) => b.points - a.points);
+            
+            rankingList.innerHTML = sortedStudents.slice(0, 10).map((student, index) => {
+                const rankClass = `rank-${index + 1}`;
+                const badge = getBadgeFromPoints(student.points);
+                
+                return `
+                    <div class="ranking-item ${rankClass}">
+                        <div class="rank">#${index + 1}</div>
+                        <div class="ranking-student">
+                            <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                                <div class="default-avatar" style="width: 40px; height: 40px;">${student.name.charAt(0)}</div>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--primary);">${student.name}</div>
+                                    <div style="font-size: 14px; color: var(--gray);">${student.expertise}</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <img src="${badge.image}" alt="${badge.name}" style="width: 35px; height: 35px;" title="${badge.name}">
+                                <div class="ranking-points">
+                                    <i class="fas fa-star"></i>
+                                    ${student.points}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Open award points modal
+        function openAwardModal(studentId) {
+            const student = studentcom.find(s => s.id === studentId);
+            if (!student) return;
+            
+            currentAwardStudentId = studentId;
+            
+            // Update modal content
+            document.getElementById('modalStudentName').textContent = student.name;
+            document.getElementById('modalStudentExpertise').textContent = student.expertise;
+            document.getElementById('modalCurrentPoints').textContent = student.points;
+            document.getElementById('modalStudentAvatar').textContent = student.name.charAt(0);
+            document.getElementById('modalPointsInput').value = 10;
+            document.getElementById('pointsReason').value = '';
+            
+            document.getElementById('awardModal').classList.add('active');
+        }
+
+        // Close award modal
+        function closeAwardModal() {
+            document.getElementById('awardModal').classList.remove('active');
+        }
+
+        // Open appointment booking modal
+        function openAppointmentModal(studentId) {
+            const student = studentcom.find(s => s.id === studentId);
+            if (!student) return;
+            
+            currentAppointmentStudentId = studentId;
+            selectedTimeSlot = null;
+            
+            // Update modal content with student info
+            const studentInfoDiv = document.getElementById('appointmentStudentInfo');
+            
+            const badge = getBadgeFromPoints(student.points);
+            
+            studentInfoDiv.innerHTML = `
+                ${student.avatar ? 
+                    `<img src="${student.avatar}" alt="${student.name}" class="appointment-avatar">` :
+                    `<div class="appointment-default-avatar">${student.name.charAt(0)}</div>`
+                }
+                <div class="appointment-details">
+                    <h3>${student.name}</h3>
+                    <p><strong>Expertise:</strong> ${student.expertise}</p>
+                    <p><strong>Contact:</strong> ${student.contact}</p>
+                    <p><strong>Badge Level:</strong> ${badge.name} <img src="${badge.image}" alt="${badge.name}" style="width: 30px; height: 30px; vertical-align: middle; margin-left: 8px;"></p>
+                    <p><strong>Points:</strong> ${student.points}</p>
+                </div>
+            `;
+            
+            // Generate time slots
+            const timeSlotsDiv = document.getElementById('timeSlots');
+            timeSlotsDiv.innerHTML = timeSlots.map(time => `
+                <div class="time-slot" onclick="selectTimeSlot('${time}')" data-time="${time}">
+                    ${time}
+                </div>
+            `).join('');
+            
+            // Reset form fields
+            document.getElementById('appointmentDate').value = '';
+            document.getElementById('appointmentPurpose').value = '';
+            document.getElementById('bookerName').value = '';
+            document.getElementById('bookerEmail').value = '';
+            document.getElementById('additionalNotes').value = '';
+            
+            // Set booker name from current user if available
+            if (currentUser && currentUser.name) {
+                document.getElementById('bookerName').value = currentUser.name;
+            }
+            
+            document.getElementById('appointmentModal').classList.add('active');
+        }
+
+        // Close appointment modal
+        function closeAppointmentModal() {
+            document.getElementById('appointmentModal').classList.remove('active');
+        }
+
+        // Select time slot for appointment
+        function selectTimeSlot(time) {
+            const timeSlots = document.querySelectorAll('.time-slot');
+            
+            // Remove selected class from all time slots
+            timeSlots.forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked time slot
+            const selectedSlot = document.querySelector(`.time-slot[data-time="${time}"]`);
+            selectedSlot.classList.add('selected');
+            
+            selectedTimeSlot = time;
+        }
+
+        // Confirm appointment booking
+        function confirmAppointment() {
+            // Get form values
+            const date = document.getElementById('appointmentDate').value;
+            const purpose = document.getElementById('appointmentPurpose').value.trim();
+            const bookerName = document.getElementById('bookerName').value.trim();
+            const bookerEmail = document.getElementById('bookerEmail').value.trim();
+            const notes = document.getElementById('additionalNotes').value.trim();
+            
+            // Validation
+            if (!date) {
+                showToast('Please select an appointment date', 'error');
+                return;
+            }
+            
+            if (!selectedTimeSlot) {
+                showToast('Please select a time slot', 'error');
+                return;
+            }
+            
+            if (!purpose) {
+                showToast('Please enter the purpose of the appointment', 'error');
+                return;
+            }
+            
+            if (!bookerName) {
+                showToast('Please enter your name', 'error');
+                return;
+            }
+            
+            if (!bookerEmail) {
+                showToast('Please enter your email address', 'error');
+                return;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(bookerEmail)) {
+                showToast('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            const student = studentcom.find(s => s.id === currentAppointmentStudentId);
+            if (!student) {
+                showToast('Student not found', 'error');
+                return;
+            }
+            
+            // Create appointment object
+            const appointment = {
+                id: Date.now(),
+                studentId: student.id,
+                studentName: student.name,
+                studentExpertise: student.expertise,
+                date: date,
+                time: selectedTimeSlot,
+                purpose: purpose,
+                bookerName: bookerName,
+                bookerEmail: bookerEmail,
+                notes: notes,
+                bookedAt: new Date().toISOString(),
+                status: 'Scheduled'
+            };
+            
+            // Get existing appointments from localStorage or create new array
+            const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+            appointments.push(appointment);
+            
+            // Save to localStorage
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+            
+            // Show success message
+            showToast(`Appointment booked with ${student.name} for ${date} at ${selectedTimeSlot}!`, 'success');
+            
+            // Close modal
+            closeAppointmentModal();
+        }
+
+        // Award points from quick form
+        function awardPoints() {
+            const studentId = parseInt(document.getElementById('studentSelect').value);
+            const points = parseInt(document.getElementById('pointsInput').value);
+            
+            if (!studentId || isNaN(studentId)) {
+                showToast('Please select a student', 'error');
+                return;
+            }
+            
+            if (isNaN(points) || points < 1 || points > 1000) {
+                showToast('Please enter a valid number of points (1-1000)', 'error');
+                return;
+            }
+            
+            const student = studentcom.find(s => s.id === studentId);
+            if (!student) {
+                showToast('Student not found', 'error');
+                return;
+            }
+            
+            // Award points
+            student.points += points;
+            student.lastActive = new Date().toISOString();
+            
+            // Save to localStorage
+            localStorage.setItem('studentcom', JSON.stringify(studentcom));
+            
+            // Update UI
+            updateStats();
+            renderStudentsTable();
+            populateStudentSelect();
+            populateExpertiseSelect();
+            renderOverallRankings();
+            
+            // Update expertise display if currently viewing one
+            if (currentExpertise) {
+                showExpertiseStudents();
+            }
+            
+            showToast(`Awarded ${points} points to ${student.name}!`, 'success');
+            
+            // Reset form
+            document.getElementById('studentSelect').value = '';
+            document.getElementById('pointsInput').value = 10;
+        }
+
+        // Confirm award points from modal
+        function confirmAwardPoints() {
+            const points = parseInt(document.getElementById('modalPointsInput').value);
+            const reason = document.getElementById('pointsReason').value.trim();
+            
+            if (isNaN(points) || points < 1 || points > 1000) {
+                showToast('Please enter a valid number of points (1-1000)', 'error');
+                return;
+            }
+            
+            const student = studentcom.find(s => s.id === currentAwardStudentId);
+            if (!student) {
+                showToast('Student not found', 'error');
+                return;
+            }
+            
+            // Award points
+            student.points += points;
+            student.lastActive = new Date().toISOString();
+            
+            // Save to localStorage
+            localStorage.setItem('studentcom', JSON.stringify(studentcom));
+            
+            // Update UI
+            updateStats();
+            renderStudentsTable();
+            populateStudentSelect();
+            populateExpertiseSelect();
+            renderOverallRankings();
+            
+            // Update expertise display if currently viewing one
+            if (currentExpertise) {
+                showExpertiseStudents();
+            }
+            
+            const message = reason 
+                ? `Awarded ${points} points to ${student.name} for: ${reason}`
+                : `Awarded ${points} points to ${student.name}!`;
+            
+            showToast(message, 'success');
+            
+            // Close modal
+            closeAwardModal();
+        }
+
+        // Search students
+        function searchStudents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                renderStudentsTable();
+                return;
+            }
+            
+            const filteredStudents = studentcom.filter(student => 
+                student.name.toLowerCase().includes(searchTerm) ||
+                (student.contact && student.contact.toLowerCase().includes(searchTerm)) ||
+                (student.expertise && student.expertise.toLowerCase().includes(searchTerm))
+            );
+            
+            renderStudentsTable(filteredStudents);
+        }
+
+        // Sort students
+        function sortStudents() {
+            const sortValue = document.getElementById('sortSelect').value;
+            let sortedStudents = [...studentcom];
+            
+            switch(sortValue) {
+                case 'name-asc':
+                    sortedStudents.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    sortedStudents.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+                case 'points-desc':
+                    sortedStudents.sort((a, b) => b.points - a.points);
+                    break;
+                case 'points-asc':
+                    sortedStudents.sort((a, b) => a.points - b.points);
+                    break;
+            }
+            
+            renderStudentsTable(sortedStudents);
+        }
+
+        // Filter students
+        function filterStudents() {
+            const filterValue = document.getElementById('filterSelect').value;
+            
+            if (filterValue === 'all') {
+                renderStudentsTable();
+                return;
+            }
+            
+            const filteredStudents = studentcom.filter(student => {
+                const badge = getBadgeFromPoints(student.points);
+                return badge.name.toLowerCase().replace(' ', '-') === filterValue;
+            });
+            
+            renderStudentsTable(filteredStudents);
+        }
+
+        // Show toast notification - EXACT COPY FROM DASHBOARD
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Set icon based on type
+            switch(type) {
+                case 'success':
+                    toastIcon.className = 'fas fa-check-circle';
+                    break;
+                case 'error':
+                    toastIcon.className = 'fas fa-exclamation-circle';
+                    break;
+                case 'warning':
+                    toastIcon.className = 'fas fa-exclamation-triangle';
+                    break;
+            }
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Logout function - FROM DASHBOARD
+        function logoutInstructor() {
+            if (confirm('Are you sure you want to logout completely?')) {
+                // Clear all storage
+                localStorage.removeItem('instructorProfile');
+                localStorage.removeItem('currentUser');
+                sessionStorage.clear();
+                
+                // Reset UI
+                document.getElementById('instructorNameMobile').textContent = 'Instructor';
+                document.getElementById('instructorRoleMobile').textContent = 'Learning Hub';
+                document.getElementById('profilePictureMobile').src = 'default-instructor.png';
+                document.getElementById('profilePictureMobileLarge').src = 'default-instructor.png';
+                
+                // Navigate to login page
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+                
+                showToast('Logged out successfully', 'success');
+            }
+        }
+
+        // Navigation functions - FROM DASHBOARD
+        function navigateToDashboard() { 
+            saveUserProfile();
+            window.location.href = 'instructordash.html';
+        }
+        
+        function navigateToSuggestionBox() { 
+            saveUserProfile();
+            window.location.href = 'instructorbox.html'; 
+        }
+        
+        function navigateToRatingManagement() { 
+            saveUserProfile();
+            window.location.href = 'instructorR&F.html'; 
+        }
+
+        function navigateToLearningHub() { 
+            // Already on learning hub page
+            saveUserProfile();
+        }
+        
+        function navigateToSettings() { 
+            saveUserProfile();
+            window.location.href = 'settingI.html'; 
+        }
+
+        // Save user profile for sharing across pages - FROM DASHBOARD
+        function saveUserProfile() {
+            if (currentUser) {
+                localStorage.setItem('instructorProfile', JSON.stringify({
+                    name: currentUser.name,
+                    email: currentUser.email,
+                    profilePic: document.getElementById('profilePictureMobile').src,
+                    role: 'Instructor'
+                }));
+            }
+        }
+
+        // Setup keyboard shortcuts - FROM DASHBOARD
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Escape to close modals
+                if (e.key === 'Escape') {
+                    if (document.getElementById('awardModal').classList.contains('active')) {
+                        closeAwardModal();
+                    }
+                    if (document.getElementById('appointmentModal').classList.contains('active')) {
+                        closeAppointmentModal();
+                    }
+                }
+                
+                // Ctrl/Cmd + F to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+                
+                // Ctrl/Cmd + A to open award modal
+                if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+                    e.preventDefault();
+                    if (studentcom.length > 0) {
+                        openAwardModal(studentcom[0].id);
+                    }
+                }
+                
+                // Ctrl/Cmd + L to logout
+                if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                    e.preventDefault();
+                    logoutInstructor();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
